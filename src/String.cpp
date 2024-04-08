@@ -2,6 +2,11 @@
 #include "String.hpp"
 #include "StringSettings.hpp"
 
+static ErrorCode         _create  (String* string,       size_t capacity);
+static size_t            _countStr(const char*   string,   const char* needle);
+static StringResult      _concat  (const String* string, const char* add, size_t length);
+static SplitStringResult _split   (const String* string, const char* delimiters, size_t length);
+
 ErrorCode String::Create()
 {
     return _create(this, DEFAULT_STRING_CAPACITY);
@@ -46,7 +51,7 @@ ErrorCode String::Create(const String* string)
     return EVERYTHING_FINE;
 }
 
-ErrorCode _create(String* string, size_t capacity)
+static ErrorCode _create(String* string, size_t capacity)
 {
     MyAssertSoft(string, ERROR_NULLPTR);
 
@@ -74,7 +79,7 @@ StringResult String::Concat(const String* string)
     return _concat(this, string->buf, string->length);
 }
 
-StringResult _concat(const String* string, const char* add, size_t length)
+static StringResult _concat(const String* string, const char* add, size_t length)
 {
     MyAssertSoftResult(string, {}, ERROR_NULLPTR);
     MyAssertSoftResult(add,    {}, ERROR_NULLPTR);
@@ -91,4 +96,75 @@ StringResult _concat(const String* string, const char* add, size_t length)
     newString.length = string->length + length;
 
     return { newString, EVERYTHING_FINE };
+}
+
+size_t String::Count(char character)
+{
+    size_t count = 0;
+    for (size_t i = 0; i < this->length; i++)
+        if (i == character)
+            count++;
+
+    return count;
+}
+
+size_t String::Count(const char* string)
+{
+    return _countStr(this->buf, string);
+}
+
+size_t String::Count(const String* string)
+{
+    return _countStr(this->buf, string->buf);
+}
+
+static size_t _countStr(const char* string, const char* needle)
+{
+    MyAssertSoft(string, ERROR_NULLPTR);
+    MyAssertSoft(needle, ERROR_NULLPTR);
+
+    size_t      count = 0;
+    const char* found = strstr(string, needle);
+
+    while (found)
+    {
+        count++;
+        found = strstr(found, needle);
+    }
+
+    return count;
+}
+
+static SplitStringResult _split(const String* string, const char* delimiters, size_t length)
+{
+    MyAssertSoftResult(string, {}, ERROR_NULLPTR);
+    
+    if (!delimiters) return { { (String*)string, 1 }, EVERYTHING_FINE };
+
+    size_t wordsCount  = _countWords(string, delimiters, length);
+    if (wordsCount == 1) return { { (String*)string, 1 }, EVERYTHING_FINE };
+
+    String* words = (String*)calloc(wordsCount, sizeof(*words));
+}
+
+static size_t _countWords(const String* string, const char* delimiters, size_t length)
+{
+    MyAssertSoft(string,     ERROR_NULLPTR);
+    MyAssertSoft(delimiters, ERROR_NULLPTR);
+
+    size_t wordsCount = 0;
+
+    for (size_t i = 0; i < string->length; i++)
+    {
+        for (size_t j = 0; j < length; j++)
+        {
+            if (string->buf[i] == delimiters[j])
+            {
+                wordsCount++;
+                break;
+            }
+        }
+    }
+
+    return wordsCount;
 }
