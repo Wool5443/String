@@ -19,6 +19,10 @@ struct String
     ErrorCode         Create(const String* string);
     void              Destructor();
 
+    ErrorCode         Append(char chr);
+    ErrorCode         Append(const char*   string);
+    ErrorCode         Append(const String* string);
+
     StringResult      Concat(const char*   string);
     StringResult      Concat(const String* string);
 

@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <math.h>
 #include "String.hpp"
 #include "StringSettings.hpp"
 
@@ -9,7 +10,9 @@ static ErrorCode         _create  (String* string,       size_t capacity);
 static size_t            _countStr(const char*   string,   const char* needle);
 static StringResult      _concat  (const String* string, const char* add, size_t length);
 static SplitStringResult _split   (String* string, const char* delimiters, size_t length);
-static size_t _countWords(const String* string, const char* delimiters, size_t length);
+static size_t            _countWords(const String* string, const char* delimiters, size_t length);
+ErrorCode                _append(String* string, const char* add, size_t length);
+static ErrorCode         _realloc(String* string, size_t neededLength);
 
 ErrorCode String::Create()
 {
@@ -25,13 +28,13 @@ ErrorCode String::Create(char* string)
 {
     MyAssertSoft(string, ERROR_NULLPTR);
 
-    if (this->allocated && this->buf) free(this->buf);
+    if (this->allocated) free(this->buf);
 
     if (!string) return _create(this, DEFAULT_STRING_CAPACITY);
 
     this->buf       = string;
     this->length    = strlen(string);
-    this->capacity  = this->length;
+    this->capacity  = this->length + 1;
     this->allocated = false;
 
     return EVERYTHING_FINE;
@@ -41,7 +44,7 @@ ErrorCode String::Create(const String* string)
 {
     MyAssertSoft(string, ERROR_NULLPTR);
 
-    if (this->allocated && this->buf) free(this->buf);
+    if (this->allocated) free(this->buf);
 
     if (!string) return _create(this, DEFAULT_STRING_CAPACITY);
 
@@ -85,6 +88,41 @@ void SplitString::Destructor()
     this->wordsCount = 0;
 }
 
+ErrorCode String::Append(char chr)
+{
+    if (!this->allocated) return ERROR_NOT_OWNER;
+
+    RETURN_ERROR(_realloc(this, this->length + 1));
+
+    this->buf[this->length++] = chr;
+
+    return EVERYTHING_FINE;
+}
+
+ErrorCode String::Append(const char* string)
+{
+    return _append(this, string, strlen(string));
+}
+
+ErrorCode String::Append(const String* string)
+{
+    return _append(this, string->buf, string->length);
+}
+
+ErrorCode _append(String* string, const char* add, size_t length)
+{
+    MyAssertSoft(string, ERROR_NULLPTR);
+    MyAssertSoft(add,    ERROR_NULLPTR);
+
+    if (!string->allocated) return ERROR_NOT_OWNER;
+
+    RETURN_ERROR(_realloc(string, string->length + length));
+
+    strncpy(string->buf + string->length, add, length);
+
+    return EVERYTHING_FINE;
+}
+
 StringResult String::Concat(const char* string)
 {
     MyAssertSoftResult(string, {}, ERROR_NULLPTR);
@@ -107,10 +145,12 @@ static StringResult _concat(const String* string, const char* add, size_t length
     String newString = {};
     size_t newLength = string->length + length;
 
-    ErrorCode error  = newString.Create(newLength + 1);
+    newString.capacity  = DEFAULT_STRING_CAPACITY;
+    newString.allocated = true;
+    ErrorCode error = _realloc(&newString, newLength);
     if (error) return { {}, error };
 
-    strncpy(newString.buf, string->buf, newLength);
+    strncpy(newString.buf, string->buf, string->length);
     strncpy(newString.buf + string->length, add, length);
 
     newString.length = newLength;
@@ -213,4 +253,21 @@ static size_t _countWords(const String* string, const char* delimiters, size_t l
     }
 
     return wordsCount;
+}
+
+static ErrorCode _realloc(String* string, size_t neededLength)
+{
+    if (neededLength < string->capacity)
+        return EVERYTHING_FINE;
+
+    size_t newCapacity  = string->capacity * 
+                          (size_t)pow(2, (size_t)log2((double)neededLength / (double)string->capacity) + 1);
+
+    char* newBuf = (char*)realloc(string->buf, newCapacity);
+    if (!newBuf) return ERROR_NO_MEMORY;
+
+    string->buf      = newBuf;
+    string->capacity = newCapacity;
+
+    return EVERYTHING_FINE;
 }
