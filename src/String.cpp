@@ -119,6 +119,7 @@ ErrorCode _append(String* string, const char* add, size_t length)
     RETURN_ERROR(_realloc(string, string->length + length));
 
     strncpy(string->buf + string->length, add, length);
+    string->length += length;
 
     return EVERYTHING_FINE;
 }
