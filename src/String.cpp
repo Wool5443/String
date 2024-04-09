@@ -110,10 +110,10 @@ static StringResult _concat(const String* string, const char* add, size_t length
     ErrorCode error  = newString.Create(newLength + 1);
     if (error) return { {}, error };
 
-    strncpy(newString.buf, string->buf, string->length);
-    strncat(newString.buf, add, length);
+    strncpy(newString.buf, string->buf, newLength);
+    strncpy(newString.buf + string->length, add, length);
 
-    newString.length = string->length + length;
+    newString.length = newLength;
 
     return { newString, EVERYTHING_FINE };
 }
