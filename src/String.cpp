@@ -2,10 +2,14 @@
 #include "String.hpp"
 #include "StringSettings.hpp"
 
+static const char*  SPACE_CHARS        = " \t\n\r\v\f";
+static const size_t SPACE_CHARS_LENGTH = 6;
+
 static ErrorCode         _create  (String* string,       size_t capacity);
 static size_t            _countStr(const char*   string,   const char* needle);
 static StringResult      _concat  (const String* string, const char* add, size_t length);
-static SplitStringResult _split   (const String* string, const char* delimiters, size_t length);
+static SplitStringResult _split   (String* string, const char* delimiters, size_t length);
+static size_t _countWords(const String* string, const char* delimiters, size_t length);
 
 ErrorCode String::Create()
 {
@@ -65,6 +69,22 @@ static ErrorCode _create(String* string, size_t capacity)
     return EVERYTHING_FINE;
 }
 
+void String::Destructor()
+{
+    if (this->allocated) free(this->buf);
+    this->allocated = false;
+    this->buf       = nullptr;
+    this->capacity  = 0;
+    this->length    = 0;
+}
+
+void SplitString::Destructor()
+{
+    free(this->words);
+    this->words      = nullptr;
+    this->wordsCount = 0;
+}
+
 StringResult String::Concat(const char* string)
 {
     MyAssertSoftResult(string, {}, ERROR_NULLPTR);
@@ -102,7 +122,7 @@ size_t String::Count(char character)
 {
     size_t count = 0;
     for (size_t i = 0; i < this->length; i++)
-        if (i == character)
+        if (this->buf[i] == character)
             count++;
 
     return count;
@@ -135,7 +155,22 @@ static size_t _countStr(const char* string, const char* needle)
     return count;
 }
 
-static SplitStringResult _split(const String* string, const char* delimiters, size_t length)
+SplitStringResult String::Split()
+{
+    return _split(this, SPACE_CHARS, SPACE_CHARS_LENGTH);
+}
+
+SplitStringResult String::Split(const char* delimiters)
+{
+    return _split(this, delimiters, strlen(delimiters));
+}
+
+SplitStringResult String::Split(const String* delimiters)
+{
+    return _split(this, delimiters->buf, delimiters->length);
+}
+
+static SplitStringResult _split(String* string, const char* delimiters, size_t length)
 {
     MyAssertSoftResult(string, {}, ERROR_NULLPTR);
     
@@ -145,6 +180,17 @@ static SplitStringResult _split(const String* string, const char* delimiters, si
     if (wordsCount == 1) return { { (String*)string, 1 }, EVERYTHING_FINE };
 
     String* words = (String*)calloc(wordsCount, sizeof(*words));
+
+    char* currentToken = strtok(string->buf, delimiters);
+    size_t i = 0;
+    while (currentToken)
+    {
+        words[i].Create(currentToken);
+        currentToken = strtok(nullptr, delimiters);
+        i++;
+    }
+
+    return { words, i };
 }
 
 static size_t _countWords(const String* string, const char* delimiters, size_t length)

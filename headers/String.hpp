@@ -14,10 +14,10 @@ struct String
     bool   allocated;
 
     ErrorCode         Create();
-    ErrorCode         Create(size_t capacity);
-    ErrorCode         Create(char*   string);
+    ErrorCode         Create(size_t        capacity);
+    ErrorCode         Create(char*         string);
     ErrorCode         Create(const String* string);
-    ErrorCode         Destructor();
+    void              Destructor();
 
     StringResult      Concat(const char*   string);
     StringResult      Concat(const String* string);
@@ -26,6 +26,7 @@ struct String
     size_t            Count(const char*   string);
     size_t            Count(const String* string);
 
+    SplitStringResult Split();
     SplitStringResult Split(const char*   delimiters);
     SplitStringResult Split(const String* delimiters);
 };
@@ -40,6 +41,8 @@ struct SplitString
 {
     String* words;
     size_t  wordsCount;
+
+    void    Destructor();
 };
 
 struct SplitStringResult
