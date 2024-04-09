@@ -198,7 +198,7 @@ static size_t _countWords(const String* string, const char* delimiters, size_t l
     MyAssertSoft(string,     ERROR_NULLPTR);
     MyAssertSoft(delimiters, ERROR_NULLPTR);
 
-    size_t wordsCount = 0;
+    size_t wordsCount = 1;
 
     for (size_t i = 0; i < string->length; i++)
     {
