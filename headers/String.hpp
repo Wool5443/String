@@ -14,8 +14,9 @@ struct String
     bool   allocated;
 
     ErrorCode         Create();
-    ErrorCode         Create(size_t        capacity);
-    ErrorCode         Create(char*         string);
+    ErrorCode         Create(size_t capacity);
+    ErrorCode         Create(char* string);
+    ErrorCode String::Create(char* string, size_t length);
     ErrorCode         Create(const String* string);
     void              Destructor();
 

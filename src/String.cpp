@@ -6,38 +6,37 @@
 static const char*  SPACE_CHARS        = " \t\n\r\v\f";
 static const size_t SPACE_CHARS_LENGTH = 6;
 
-static ErrorCode         _create  (String* string,       size_t capacity);
-static size_t            _countStr(const char*   string,   const char* needle);
-static StringResult      _concat  (const String* string, const char* add, size_t length);
-static SplitStringResult _split   (String* string, const char* delimiters, size_t length);
+static ErrorCode         _createImmutable(char* buffer, String* string, size_t length);
+static ErrorCode         _createMutable(String* string, size_t capacity);
+static size_t            _countStr(const char*   string, const char* needle);
+static StringResult      _concat(const String* string, const char* add, size_t length);
+static SplitStringResult _split(String* string, const char* delimiters, size_t length);
 static size_t            _countWords(const String* string, const char* delimiters, size_t length);
 ErrorCode                _append(String* string, const char* add, size_t length);
 static ErrorCode         _realloc(String* string, size_t neededLength);
 
 ErrorCode String::Create()
 {
-    return _create(this, DEFAULT_STRING_CAPACITY);
+    return _createMutable(this, DEFAULT_STRING_CAPACITY);
 }
 
 ErrorCode String::Create(size_t capacity)
 {
-    return _create(this, capacity);
+    return _createMutable(this, capacity);
 }
 
 ErrorCode String::Create(char* string)
 {
     MyAssertSoft(string, ERROR_NULLPTR);
 
-    if (this->allocated) free(this->buf);
+    return _createImmutable(this, string, strlen(string));
+}
 
-    if (!string) return _create(this, DEFAULT_STRING_CAPACITY);
+ErrorCode String::Create(char* string, size_t length)
+{
+    MyAssertSoft(string, ERROR_NULLPTR);
 
-    this->buf       = string;
-    this->length    = strlen(string);
-    this->capacity  = this->length + 1;
-    this->allocated = false;
-
-    return EVERYTHING_FINE;
+    return _createImmutable(this, string, length);
 }
 
 ErrorCode String::Create(const String* string)
@@ -46,19 +45,34 @@ ErrorCode String::Create(const String* string)
 
     if (this->allocated) free(this->buf);
 
-    if (!string) return _create(this, DEFAULT_STRING_CAPACITY);
+    if (!string) return _createMutable(this, DEFAULT_STRING_CAPACITY);
 
     this->buf       = strdup(string->buf);
     if (!this->buf) return ERROR_NO_MEMORY;
 
     this->length    = string->length;
-    this->capacity  = string->capacity + 1;
+    this->capacity  = string->capacity;
     this->allocated = true;
 
     return EVERYTHING_FINE;
 }
 
-static ErrorCode _create(String* string, size_t capacity)
+static ErrorCode _createImmutable(String* string, char* buffer, size_t length)
+{
+    MyAssertSoft(string, ERROR_NULLPTR);
+    MyAssertSoft(buffer, ERROR_NULLPTR);
+
+    if (string->allocated && string->buf) free(string->buf);
+
+    string->allocated = false;
+    string->buf       = buffer;
+    string->capacity  = length + 1;
+    string->length    = length;
+
+    return EVERYTHING_FINE;
+}
+
+static ErrorCode _createMutable(String* string, size_t capacity)
 {
     MyAssertSoft(string, ERROR_NULLPTR);
 
@@ -148,7 +162,7 @@ static StringResult _concat(const String* string, const char* add, size_t length
 
     newString.capacity  = DEFAULT_STRING_CAPACITY;
     newString.allocated = true;
-    ErrorCode error = _realloc(&newString, newLength);
+    ErrorCode error     = _realloc(&newString, newLength);
     if (error) return { {}, error };
 
     strncpy(newString.buf, string->buf, string->length);
@@ -258,6 +272,9 @@ static size_t _countWords(const String* string, const char* delimiters, size_t l
 
 static ErrorCode _realloc(String* string, size_t neededLength)
 {
+    MyAssertSoft(string, ERROR_NULLPTR);
+    MyAssertSoft(string->allocated, ERROR_NOT_OWNER);
+
     if (neededLength < string->capacity)
         return EVERYTHING_FINE;
 
