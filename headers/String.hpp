@@ -35,6 +35,10 @@ struct String
     SplitStringResult Split(const char*   delimiters);
     SplitStringResult Split(const String* delimiters);
 
+    ErrorCode         Filter();
+    ErrorCode         Filter(const char*   filter);
+    ErrorCode         Filter(const String* filter);
+
     bool              IsSpaceCharacters();
 
     static bool       IsSpaceCharacters(const char* string);

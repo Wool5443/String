@@ -15,6 +15,7 @@ static SplitStringResult _split(String* string, const char* delimiters, size_t l
 static size_t            _countWords(const String* string, const char* delimiters, size_t length);
 ErrorCode                _append(String* string, const char* add, size_t length);
 static ErrorCode         _realloc(String* string, size_t neededLength);
+static ErrorCode         _filter(String* string, const char* filter);
 
 ErrorCode String::Create()
 {
@@ -287,6 +288,43 @@ static ErrorCode _realloc(String* string, size_t neededLength)
 
     string->buf      = newBuf;
     string->capacity = newCapacity;
+
+    return EVERYTHING_FINE;
+}
+
+ErrorCode String::Filter()
+{
+    return _filter(this, SPACE_CHARS);
+}
+
+ErrorCode String::Filter(const char* filter)
+{
+    MyAssertSoft(filter, ERROR_NULLPTR);
+    return _filter(this, filter);
+}
+
+ErrorCode String::Filter(const String* filter)
+{
+    MyAssertSoft(filter, ERROR_NULLPTR);
+    return _filter(this, filter->buf);
+}
+
+static ErrorCode _filter(String* string, const char* filter)
+{
+    MyAssertSoft(string, ERROR_NULLPTR);
+    MyAssertSoft(filter, ERROR_NULLPTR);
+
+    const char* readPtr  = string->buf;
+    char*       writePtr = string->buf;
+
+    while (*readPtr)
+    {
+        char c = *readPtr++;
+
+        if (!strchr(filter, c))
+            *writePtr++ = c;
+    }
+    *writePtr = '\0';
 
     return EVERYTHING_FINE;
 }
