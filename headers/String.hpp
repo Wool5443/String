@@ -16,7 +16,7 @@ struct String
     ErrorCode         Create();
     ErrorCode         Create(size_t capacity);
     ErrorCode         Create(char* string);
-    ErrorCode String::Create(char* string, size_t length);
+    ErrorCode         Create(char* string, size_t length);
     ErrorCode         Create(const String* string);
     void              Destructor();
 
@@ -34,6 +34,10 @@ struct String
     SplitStringResult Split();
     SplitStringResult Split(const char*   delimiters);
     SplitStringResult Split(const String* delimiters);
+
+    bool              IsSpaceCharacters();
+
+    static bool       IsSpaceCharacters(const char* string);
 };
 
 struct StringResult

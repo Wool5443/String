@@ -1,12 +1,13 @@
 #include <errno.h>
 #include <math.h>
+#include <ctype.h>
 #include "String.hpp"
 #include "StringSettings.hpp"
 
 static const char*  SPACE_CHARS        = " \t\n\r\v\f";
 static const size_t SPACE_CHARS_LENGTH = 6;
 
-static ErrorCode         _createImmutable(char* buffer, String* string, size_t length);
+static ErrorCode         _createImmutable(String* string, char* buffer, size_t length);
 static ErrorCode         _createMutable(String* string, size_t capacity);
 static size_t            _countStr(const char*   string, const char* needle);
 static StringResult      _concat(const String* string, const char* add, size_t length);
@@ -288,4 +289,22 @@ static ErrorCode _realloc(String* string, size_t neededLength)
     string->capacity = newCapacity;
 
     return EVERYTHING_FINE;
+}
+
+bool String::IsSpaceCharacters()
+{
+    for (size_t i = 0; i < this->length; i++)
+        if (!isspace(this->buf[i]))
+            return false;
+    return true;
+}
+
+bool String::IsSpaceCharacters(const char* string)
+{
+    while (*string && isspace(*string))
+        string++;
+    
+    if (*string == '\0')
+        return true;
+    return false;
 }
