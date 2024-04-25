@@ -283,9 +283,11 @@ static ErrorCode _realloc(String* string, size_t neededLength)
     size_t newCapacity  = string->capacity * 
                           (size_t)pow(2, (size_t)log2((double)neededLength / (double)string->capacity) + 1);
 
-    char* newBuf = (char*)realloc(string->buf, newCapacity);
+    char* newBuf = (char*)calloc(newCapacity, 1);
     if (!newBuf) return ERROR_NO_MEMORY;
+    memcpy(newBuf, string->buf, string->capacity);
 
+    free(string->buf);
     string->buf      = newBuf;
     string->capacity = newCapacity;
 
