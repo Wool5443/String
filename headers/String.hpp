@@ -15,8 +15,8 @@ struct String
 
     ErrorCode         Create();
     ErrorCode         Create(size_t capacity);
-    ErrorCode         Create(char* string);
-    ErrorCode         Create(char* string, size_t length);
+    ErrorCode         Create(const char* string);
+    ErrorCode         Create(const char* string, size_t length);
     ErrorCode         Create(const String* string);
     void              Destructor();
 

@@ -7,7 +7,7 @@
 static const char*  SPACE_CHARS        = " \t\n\r\v\f";
 static const size_t SPACE_CHARS_LENGTH = 6;
 
-static ErrorCode         _createImmutable(String* string, char* buffer, size_t length);
+static ErrorCode         _createImmutable(String* string, const char* buffer, size_t length);
 static ErrorCode         _createMutable(String* string, size_t capacity);
 static size_t            _countStr(const char*   string, const char* needle);
 static StringResult      _concat(const String* string, const char* add, size_t length);
@@ -27,14 +27,14 @@ ErrorCode String::Create(size_t capacity)
     return _createMutable(this, capacity);
 }
 
-ErrorCode String::Create(char* string)
+ErrorCode String::Create(const char* string)
 {
     MyAssertSoft(string, ERROR_NULLPTR);
 
     return _createImmutable(this, string, strlen(string));
 }
 
-ErrorCode String::Create(char* string, size_t length)
+ErrorCode String::Create(const char* string, size_t length)
 {
     MyAssertSoft(string, ERROR_NULLPTR);
 
@@ -59,7 +59,7 @@ ErrorCode String::Create(const String* string)
     return EVERYTHING_FINE;
 }
 
-static ErrorCode _createImmutable(String* string, char* buffer, size_t length)
+static ErrorCode _createImmutable(String* string, const char* buffer, size_t length)
 {
     MyAssertSoft(string, ERROR_NULLPTR);
     MyAssertSoft(buffer, ERROR_NULLPTR);
@@ -67,7 +67,7 @@ static ErrorCode _createImmutable(String* string, char* buffer, size_t length)
     if (string->allocated && string->buf) free(string->buf);
 
     string->allocated = false;
-    string->buf       = buffer;
+    string->buf       = (char*)buffer;
     string->capacity  = length + 1;
     string->length    = length;
 
