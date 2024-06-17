@@ -285,7 +285,8 @@ static ErrorCode _realloc(String* string, size_t neededLength)
 
     char* newBuf = (char*)calloc(newCapacity, 1);
     if (!newBuf) return ERROR_NO_MEMORY;
-    memcpy(newBuf, string->buf, string->capacity);
+    if (string->buf)
+        memcpy(newBuf, string->buf, string->capacity);
 
     free(string->buf);
     string->buf      = newBuf;
