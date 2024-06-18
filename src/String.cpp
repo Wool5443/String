@@ -175,7 +175,7 @@ static StringResult _concat(const String* string, const char* add, size_t length
     return { newString, EVERYTHING_FINE };
 }
 
-size_t String::Count(char character)
+size_t String::Count(char character) const
 {
     size_t count = 0;
     for (size_t i = 0; i < this->length; i++)
@@ -185,12 +185,12 @@ size_t String::Count(char character)
     return count;
 }
 
-size_t String::Count(const char* string)
+size_t String::Count(const char* string) const
 {
     return _countStr(this->buf, string);
 }
 
-size_t String::Count(const String* string)
+size_t String::Count(const String* string) const
 {
     return _countStr(this->buf, string->buf);
 }
@@ -332,7 +332,7 @@ static ErrorCode _filter(String* string, const char* filter)
     return EVERYTHING_FINE;
 }
 
-bool String::IsSpaceCharacters()
+bool String::IsSpaceCharacters() const
 {
     for (size_t i = 0; i < this->length; i++)
         if (!isspace(this->buf[i]))

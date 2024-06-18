@@ -31,9 +31,9 @@ struct String
     size_t            Count(const char*   string) const;
     size_t            Count(const String* string) const;
 
-    SplitStringResult Split() const;
-    SplitStringResult Split(const char*   delimiters) const;
-    SplitStringResult Split(const String* delimiters) const;
+    SplitStringResult Split();
+    SplitStringResult Split(const char*   delimiters);
+    SplitStringResult Split(const String* delimiters);
 
     ErrorCode         Filter();
     ErrorCode         Filter(const char*   filter);
