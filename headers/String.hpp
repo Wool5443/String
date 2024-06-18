@@ -27,19 +27,19 @@ struct String
     StringResult      Concat(const char*   string);
     StringResult      Concat(const String* string);
 
-    size_t            Count(char character);
-    size_t            Count(const char*   string);
-    size_t            Count(const String* string);
+    size_t            Count(char character) const;
+    size_t            Count(const char*   string) const;
+    size_t            Count(const String* string) const;
 
-    SplitStringResult Split();
-    SplitStringResult Split(const char*   delimiters);
-    SplitStringResult Split(const String* delimiters);
+    SplitStringResult Split() const;
+    SplitStringResult Split(const char*   delimiters) const;
+    SplitStringResult Split(const String* delimiters) const;
 
     ErrorCode         Filter();
     ErrorCode         Filter(const char*   filter);
     ErrorCode         Filter(const String* filter);
 
-    bool              IsSpaceCharacters();
+    bool              IsSpaceCharacters() const;
 
     static bool       IsSpaceCharacters(const char* string);
 };
