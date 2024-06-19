@@ -13,16 +13,16 @@ struct String
     size_t capacity;
     bool   allocated;
 
-    ErrorCode         Create();
-    ErrorCode         Create(size_t capacity);
-    ErrorCode         Create(const char* string);
-    ErrorCode         Create(const char* string, size_t length);
-    ErrorCode         Create(const String* string);
+    Error Create();
+    Error Create(size_t capacity);
+    Error Create(const char* string);
+    Error Create(const char* string, size_t length);
+    Error Create(const String* string);
     void              Destructor();
 
-    ErrorCode         Append(char chr);
-    ErrorCode         Append(const char*   string);
-    ErrorCode         Append(const String* string);
+    Error Append(char chr);
+    Error Append(const char*   string);
+    Error Append(const String* string);
 
     StringResult      Concat(const char*   string);
     StringResult      Concat(const String* string);
@@ -35,9 +35,9 @@ struct String
     SplitStringResult Split(const char*   delimiters);
     SplitStringResult Split(const String* delimiters);
 
-    ErrorCode         Filter();
-    ErrorCode         Filter(const char*   filter);
-    ErrorCode         Filter(const String* filter);
+    Error Filter();
+    Error Filter(const char*   filter);
+    Error Filter(const String* filter);
 
     bool              IsSpaceCharacters() const;
 
@@ -46,8 +46,8 @@ struct String
 
 struct StringResult
 {
-    String    value;
-    ErrorCode error;
+    String value;
+    Error  error;
 };
 
 struct SplitString
@@ -61,5 +61,5 @@ struct SplitString
 struct SplitStringResult
 {
     SplitString value;
-    ErrorCode   error;
+    Error       error;
 };

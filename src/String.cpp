@@ -7,62 +7,62 @@
 static const char*  SPACE_CHARS        = " \t\n\r\v\f";
 static const size_t SPACE_CHARS_LENGTH = 6;
 
-static ErrorCode         _createImmutable(String* string, const char* buffer, size_t length);
-static ErrorCode         _createMutable(String* string, size_t capacity);
+static Error             _createImmutable(String* string, const char* buffer, size_t length);
+static Error             _createMutable(String* string, size_t capacity);
 static size_t            _countStr(const char*   string, const char* needle);
 static StringResult      _concat(const String* string, const char* add, size_t length);
 static SplitStringResult _split(String* string, const char* delimiters, size_t length);
 static size_t            _countWords(const String* string, const char* delimiters, size_t length);
-ErrorCode                _append(String* string, const char* add, size_t length);
-static ErrorCode         _realloc(String* string, size_t neededLength);
-static ErrorCode         _filter(String* string, const char* filter);
+Error                    _append(String* string, const char* add, size_t length);
+static Error             _realloc(String* string, size_t neededLength);
+static Error             _filter(String* string, const char* filter);
 
-ErrorCode String::Create()
+Error String::Create()
 {
     return _createMutable(this, DEFAULT_STRING_CAPACITY);
 }
 
-ErrorCode String::Create(size_t capacity)
+Error String::Create(size_t capacity)
 {
     return _createMutable(this, capacity);
 }
 
-ErrorCode String::Create(const char* string)
+Error String::Create(const char* string)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
+    SoftAssert(string, ERROR_NULLPTR);
 
     return _createImmutable(this, string, strlen(string));
 }
 
-ErrorCode String::Create(const char* string, size_t length)
+Error String::Create(const char* string, size_t length)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
+    SoftAssert(string, ERROR_NULLPTR);
 
     return _createImmutable(this, string, length);
 }
 
-ErrorCode String::Create(const String* string)
+Error String::Create(const String* string)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
+    SoftAssert(string, ERROR_NULLPTR);
 
     if (this->allocated) free(this->buf);
 
     if (!string) return _createMutable(this, DEFAULT_STRING_CAPACITY);
 
     this->buf       = strdup(string->buf);
-    if (!this->buf) return ERROR_NO_MEMORY;
+    if (!this->buf) return CREATE_ERROR(ERROR_NO_MEMORY);
 
     this->length    = string->length;
     this->capacity  = string->capacity;
     this->allocated = true;
 
-    return EVERYTHING_FINE;
+    return Error();
 }
 
-static ErrorCode _createImmutable(String* string, const char* buffer, size_t length)
+static Error _createImmutable(String* string, const char* buffer, size_t length)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
-    MyAssertSoft(buffer, ERROR_NULLPTR);
+    SoftAssert(string, ERROR_NULLPTR);
+    SoftAssert(buffer, ERROR_NULLPTR);
 
     if (string->allocated && string->buf) free(string->buf);
 
@@ -71,21 +71,21 @@ static ErrorCode _createImmutable(String* string, const char* buffer, size_t len
     string->capacity  = length + 1;
     string->length    = length;
 
-    return EVERYTHING_FINE;
+    return Error();
 }
 
-static ErrorCode _createMutable(String* string, size_t capacity)
+static Error _createMutable(String* string, size_t capacity)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
+    SoftAssert(string, ERROR_NULLPTR);
 
     string->buf = (char*)calloc(capacity, 1);
-    if (!string->buf) return ERROR_NO_MEMORY;
+    if (!string->buf) return CREATE_ERROR(ERROR_NO_MEMORY);
 
     string->length    = 0;
     string->capacity  = capacity;
     string->allocated = true;
 
-    return EVERYTHING_FINE;
+    return Error();
 }
 
 void String::Destructor()
@@ -104,67 +104,69 @@ void SplitString::Destructor()
     this->wordsCount = 0;
 }
 
-ErrorCode String::Append(char chr)
+Error String::Append(char chr)
 {
-    if (!this->allocated) return ERROR_NOT_OWNER;
+    if (!this->allocated)
+        return CREATE_ERROR(ERROR_NOT_OWNER);
 
     RETURN_ERROR(_realloc(this, this->length + 1));
 
     this->buf[this->length++] = chr;
 
-    return EVERYTHING_FINE;
+    return Error();
 }
 
-ErrorCode String::Append(const char* string)
+Error String::Append(const char* string)
 {
     return _append(this, string, strlen(string));
 }
 
-ErrorCode String::Append(const String* string)
+Error String::Append(const String* string)
 {
     return _append(this, string->buf, string->length);
 }
 
-ErrorCode _append(String* string, const char* add, size_t length)
+Error _append(String* string, const char* add, size_t length)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
-    MyAssertSoft(add,    ERROR_NULLPTR);
+    SoftAssert(string, ERROR_NULLPTR);
+    SoftAssert(add,    ERROR_NULLPTR);
 
-    if (!string->allocated) return ERROR_NOT_OWNER;
+    if (!string->allocated)
+        return CREATE_ERROR(ERROR_NOT_OWNER);
 
     RETURN_ERROR(_realloc(string, string->length + length));
 
     strncpy(string->buf + string->length, add, length);
     string->length += length;
 
-    return EVERYTHING_FINE;
+    return Error();
 }
 
 StringResult String::Concat(const char* string)
 {
-    MyAssertSoftResult(string, {}, ERROR_NULLPTR);
+    SoftAssertResult(string, {}, ERROR_NULLPTR);
 
     return _concat(this, string, strlen(string));
 }
 
 StringResult String::Concat(const String* string)
 {
-    MyAssertSoftResult(string, {}, ERROR_NULLPTR);
+    SoftAssertResult(string, {}, ERROR_NULLPTR);
 
     return _concat(this, string->buf, string->length);
 }
 
 static StringResult _concat(const String* string, const char* add, size_t length)
 {
-    MyAssertSoftResult(string, {}, ERROR_NULLPTR);
-    MyAssertSoftResult(add,    {}, ERROR_NULLPTR);
+    SoftAssertResult(string, {}, ERROR_NULLPTR);
+    SoftAssertResult(add,    {}, ERROR_NULLPTR);
 
     String newString = {};
     size_t newLength = string->length + length;
 
     newString.capacity  = DEFAULT_STRING_CAPACITY;
     newString.allocated = true;
-    ErrorCode error     = _realloc(&newString, newLength);
+    Error error     = _realloc(&newString, newLength);
     if (error) return { {}, error };
 
     strncpy(newString.buf, string->buf, string->length);
@@ -172,7 +174,7 @@ static StringResult _concat(const String* string, const char* add, size_t length
 
     newString.length = newLength;
 
-    return { newString, EVERYTHING_FINE };
+    return { newString, Error() };
 }
 
 size_t String::Count(char character) const
@@ -197,8 +199,8 @@ size_t String::Count(const String* string) const
 
 static size_t _countStr(const char* string, const char* needle)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
-    MyAssertSoft(needle, ERROR_NULLPTR);
+    if (!string || !needle)
+        return SIZET_POISON;
 
     size_t      count = 0;
     const char* found = strstr(string, needle);
@@ -229,12 +231,12 @@ SplitStringResult String::Split(const String* delimiters)
 
 static SplitStringResult _split(String* string, const char* delimiters, size_t length)
 {
-    MyAssertSoftResult(string, {}, ERROR_NULLPTR);
+    SoftAssertResult(string, {}, ERROR_NULLPTR);
     
-    if (!delimiters) return { { (String*)string, 1 }, EVERYTHING_FINE };
+    if (!delimiters) return { { (String*)string, 1 }, Error() };
 
     size_t wordsCount  = _countWords(string, delimiters, length);
-    if (wordsCount == 1) return { { (String*)string, 1 }, EVERYTHING_FINE };
+    if (wordsCount == 1) return { { (String*)string, 1 }, Error() };
 
     String* words = (String*)calloc(wordsCount, sizeof(*words));
 
@@ -252,8 +254,8 @@ static SplitStringResult _split(String* string, const char* delimiters, size_t l
 
 static size_t _countWords(const String* string, const char* delimiters, size_t length)
 {
-    MyAssertSoft(string,     ERROR_NULLPTR);
-    MyAssertSoft(delimiters, ERROR_NULLPTR);
+    if (!string || !delimiters)
+        return SIZET_POISON;
 
     size_t wordsCount = 1;
 
@@ -272,19 +274,20 @@ static size_t _countWords(const String* string, const char* delimiters, size_t l
     return wordsCount;
 }
 
-static ErrorCode _realloc(String* string, size_t neededLength)
+static Error _realloc(String* string, size_t neededLength)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
-    MyAssertSoft(string->allocated, ERROR_NOT_OWNER);
+    SoftAssert(string, ERROR_NULLPTR);
+    SoftAssert(string->allocated, ERROR_NOT_OWNER);
 
     if (neededLength < string->capacity)
-        return EVERYTHING_FINE;
+        return Error();
 
     size_t newCapacity  = string->capacity * 
                           (size_t)pow(2, (size_t)log2((double)neededLength / (double)string->capacity) + 1);
 
     char* newBuf = (char*)calloc(newCapacity, 1);
-    if (!newBuf) return ERROR_NO_MEMORY;
+    if (!newBuf)
+        return CREATE_ERROR(ERROR_NO_MEMORY);
     if (string->buf)
         memcpy(newBuf, string->buf, string->capacity);
 
@@ -292,30 +295,30 @@ static ErrorCode _realloc(String* string, size_t neededLength)
     string->buf      = newBuf;
     string->capacity = newCapacity;
 
-    return EVERYTHING_FINE;
+    return Error();
 }
 
-ErrorCode String::Filter()
+Error String::Filter()
 {
     return _filter(this, SPACE_CHARS);
 }
 
-ErrorCode String::Filter(const char* filter)
+Error String::Filter(const char* filter)
 {
-    MyAssertSoft(filter, ERROR_NULLPTR);
+    SoftAssert(filter, ERROR_NULLPTR);
     return _filter(this, filter);
 }
 
-ErrorCode String::Filter(const String* filter)
+Error String::Filter(const String* filter)
 {
-    MyAssertSoft(filter, ERROR_NULLPTR);
+    SoftAssert(filter, ERROR_NULLPTR);
     return _filter(this, filter->buf);
 }
 
-static ErrorCode _filter(String* string, const char* filter)
+static Error _filter(String* string, const char* filter)
 {
-    MyAssertSoft(string, ERROR_NULLPTR);
-    MyAssertSoft(filter, ERROR_NULLPTR);
+    SoftAssert(string, ERROR_NULLPTR);
+    SoftAssert(filter, ERROR_NULLPTR);
 
     const char* readPtr  = string->buf;
     char*       writePtr = string->buf;
@@ -329,7 +332,7 @@ static ErrorCode _filter(String* string, const char* filter)
     }
     *writePtr = '\0';
 
-    return EVERYTHING_FINE;
+    return Error();
 }
 
 bool String::IsSpaceCharacters() const
