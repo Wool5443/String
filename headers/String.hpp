@@ -6,11 +6,25 @@ struct String;
 struct StringResult;
 struct SplitString;
 struct SplitStringResult;
+
 struct String
 {
     char*  buf;
-    size_t length;
     size_t capacity;
+    size_t length;
+    Error  error;
+
+    String() noexcept;
+    String(size_t capacity) noexcept;
+    String(const char* string) noexcept;
+    String(const char* string, size_t length) noexcept;
+    ~String() noexcept;
+
+    String(const String& other) noexcept;
+
+    String& operator+=(const String& other) noexcept;
+    String& operator=(const String& other) noexcept;
+    String& operator=(String&& other) noexcept;
 
     Error             Create() noexcept;
     Error             Create(size_t capacity) noexcept;
@@ -23,8 +37,8 @@ struct String
     Error             Append(const char*   string) noexcept;
     Error             Append(const String& string) noexcept;
 
-    StringResult      Concat(const char*   string) noexcept;
-    StringResult      Concat(const String& string) noexcept;
+    StringResult      Concat(const char*   string) const noexcept;
+    StringResult      Concat(const String& string) const noexcept;
 
     size_t            Count(char character) const noexcept;
     size_t            Count(const char*   string) const noexcept;
@@ -39,7 +53,7 @@ struct String
     Error             Filter(const String& filter) noexcept;
 
     bool              IsSpaceCharacters() const noexcept;
-    static bool       IsSpaceCharacters(const char* string) noexcept;
+    static bool       IsSpaceCharacters(const char* string);
 };
 
 struct StringResult
@@ -61,3 +75,5 @@ struct SplitStringResult
     SplitString value;
     Error       error;
 };
+
+StringResult operator+(const String& left, const String& right) noexcept;
