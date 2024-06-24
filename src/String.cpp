@@ -7,20 +7,20 @@
 static const char*  SPACE_CHARS        = " \t\n\r\v\f";
 static const size_t SPACE_CHARS_LENGTH = 6;
 
-static const size_t AUTO_SIZE          = -1;
-
 static inline __attribute__((always_inline)) size_t _calcCapacity(size_t capacity, size_t hintLength)
 {
-    return capacity * 
+    return hintLength ?
+           capacity * 
            (size_t)pow(2, 
-           (size_t)log2((double)hintLength / (double)capacity) + 1);
+           (size_t)log2((double)hintLength / (double)capacity) + 1)
+           : DEFAULT_STRING_CAPACITY;
 }
 
 static Error             _create(String& string, size_t length, size_t capacity, const char* data);
 static Error             _realloc(String& string, size_t hintLength);
 static size_t            _countStr(const char*   string, const char* needle);
 Error                    _append(String& string, const char* add, size_t length);
-static StringResult      _concat(const String& string, const char* add, size_t length);
+static String            _concat(const String& string, const char* add, size_t length);
 static size_t            _countWords(const String& string, const char* delimiters, size_t length);
 static SplitStringResult _split(String& string, const char* delimiters, size_t length);
 static Error             _filter(String& string, const char* filter);
@@ -37,12 +37,13 @@ Error String::Create(size_t capacity) noexcept
 
 Error String::Create(const char* string) noexcept
 {
-    return _create(*this, AUTO_SIZE, AUTO_SIZE, string);
+    size_t length = strlen(string);
+    return _create(*this, length, _calcCapacity(DEFAULT_STRING_CAPACITY, length), string);
 }
 
 Error String::Create(const char* string, size_t length) noexcept
 {
-    return _create(*this, length, length, string);
+    return _create(*this, length, _calcCapacity(DEFAULT_STRING_CAPACITY, length), string);
 }
 
 Error String::Create(const String& string) noexcept
@@ -52,17 +53,21 @@ Error String::Create(const String& string) noexcept
 
 static Error _create(String& string, size_t length, size_t capacity, const char* data)
 {
-    if (length == AUTO_SIZE)
-        string.length = strlen(data);
-    if (capacity == AUTO_SIZE)
-        string.capacity = _calcCapacity(DEFAULT_STRING_CAPACITY, string.length);
-
     string.buf = (char*)calloc(string.capacity, 1);
-    if (!string.buf) return CREATE_ERROR(ERROR_NO_MEMORY);
+
+    if (!string.buf)
+    {
+        string.error = CREATE_ERROR(ERROR_NO_MEMORY);
+        return string.error;
+    }
+
+    string.capacity = capacity;
+    string.length   = length;
 
     if (data)
-        memcpy(string.buf, data, string.length);
+        memcpy(string.buf, data, length);
 
+    string.error = Error();
     return Error();
 }
 
@@ -127,33 +132,34 @@ Error _append(String& string, const char* add, size_t length)
     return Error();
 }
 
-StringResult String::Concat(const char* string) const noexcept
+String String::Concat(const char* string) const noexcept
 {
     if (!string)
-        return { *this, Error() };
+        return *this;
 
     return _concat(*this, string, strlen(string));
 }
 
-StringResult String::Concat(const String& string) const noexcept
+String String::Concat(const String& string) const noexcept
 {
     if (!string.buf)
-        return { *this, Error() };
+        return *this;
 
     return _concat(*this, string.buf, string.length);
 }
 
-static StringResult _concat(const String& string, const char* add, size_t length)
+static String _concat(const String& string, const char* add, size_t length)
 {
-    SoftAssertResult(add, {}, ERROR_NULLPTR);
+    String newString = string;
 
-    size_t newLength = string.length + length;
-    String newString = {};
-    RETURN_ERROR_RESULT(_create(newString, newLength, AUTO_SIZE, string.buf), {});
+    if (newString.error)
+    {
+        return newString;
+    }
 
-    strncpy(newString.buf + string.length, add, length);
+    memcpy(newString.buf + string.length, add, length);
 
-    return { newString, Error() };
+    return newString;
 }
 
 size_t String::Count(char character) const noexcept
@@ -314,6 +320,51 @@ bool String::IsSpaceCharacters(const char* string)
     return false;
 }
 
+String::String() noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+    error = this->Create();
+}
+
+String::String(size_t capacity) noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+    error = this->Create(capacity);
+}
+
+String::String(const char* string) noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+    error = this->Create(string);
+}
+
+String::String(const char* string, size_t length) noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+
+    error = this->Create(string, length);
+}
+
+String::String(const String& other) noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+    error = this->Create(other);
+}
+
+String::String(String&& other) noexcept
+    : buf(other.buf), capacity(other.capacity),
+      length(other.length), error(other.error)
+{
+    other.buf      = nullptr;
+    other.capacity = SIZET_POISON;
+    other.length   = SIZET_POISON;
+}
+
+String::~String() noexcept
+{
+    this->Destructor();
+}
+
 String& String::operator+=(const String& other) noexcept
 {
     error = this->Append(other);
@@ -339,7 +390,7 @@ String& String::operator=(String&& other) noexcept
     return *this;
 }
 
-StringResult operator+(const String& left, const String& right)
+String operator+(const String& left, const String& right) noexcept
 {
     return left.Concat(right);
 }

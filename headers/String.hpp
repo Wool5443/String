@@ -21,6 +21,7 @@ struct String
     ~String() noexcept;
 
     String(const String& other) noexcept;
+    String(String&& other) noexcept;
 
     String& operator+=(const String& other) noexcept;
     String& operator=(const String& other) noexcept;
@@ -37,8 +38,8 @@ struct String
     Error             Append(const char*   string) noexcept;
     Error             Append(const String& string) noexcept;
 
-    StringResult      Concat(const char*   string) const noexcept;
-    StringResult      Concat(const String& string) const noexcept;
+    String            Concat(const char*   string) const noexcept;
+    String            Concat(const String& string) const noexcept;
 
     size_t            Count(char character) const noexcept;
     size_t            Count(const char*   string) const noexcept;
@@ -56,12 +57,6 @@ struct String
     static bool       IsSpaceCharacters(const char* string);
 };
 
-struct StringResult
-{
-    String value;
-    Error  error;
-};
-
 struct SplitString
 {
     String* words;
@@ -76,4 +71,4 @@ struct SplitStringResult
     Error       error;
 };
 
-StringResult operator+(const String& left, const String& right) noexcept;
+String operator+(const String& left, const String& right) noexcept;
