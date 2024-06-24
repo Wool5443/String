@@ -7,6 +7,16 @@
 static const char*  SPACE_CHARS        = " \t\n\r\v\f";
 static const size_t SPACE_CHARS_LENGTH = 6;
 
+#define CHECK_ERROR(error, ...) \
+do                              \
+{                               \
+    if (error)                  \
+    {                           \
+        error.Print();          \
+        return __VA_ARGS__;     \
+    }                           \
+}   while (0)
+
 static inline __attribute__((always_inline)) size_t _calcCapacity(size_t capacity, size_t hintLength)
 {
     if (hintLength < DEFAULT_STRING_CAPACITY)
@@ -55,6 +65,8 @@ Error String::Create(const String& string) noexcept
 
 static Error _create(String& string, size_t length, size_t capacity, const char* data)
 {
+    CHECK_ERROR(string.error, string.error);
+
     string.capacity = capacity;
     string.length   = length;
 
@@ -95,6 +107,8 @@ static Error _realloc(String& string, size_t hintLength)
 
 void String::Destructor() noexcept
 {
+    CHECK_ERROR(this->error);
+
     free(this->buf);
     this->buf       = nullptr;
     this->capacity  = 0;
@@ -124,6 +138,8 @@ Error String::Append(const String& string) noexcept
 
 Error _append(String& string, const char* add, size_t length)
 {
+    CHECK_ERROR(string.error, string.error);
+
     SoftAssert(add, ERROR_NULLPTR);
 
     RETURN_ERROR(_realloc(string, string.length + length));
@@ -152,6 +168,8 @@ String String::Concat(const String& string) const noexcept
 
 static String _concat(const String& string, const char* add, size_t length)
 {
+    CHECK_ERROR(string.error, BAD_STRING);
+
     String newString = string;
 
     if (newString.error)
@@ -203,6 +221,8 @@ static size_t _countStr(const char* string, const char* needle)
 
 static size_t _countWords(const String& string, const char* delimiters, size_t length)
 {
+    CHECK_ERROR(string.error, SIZET_POISON);
+
     if (!delimiters)
         return SIZET_POISON;
 
@@ -250,6 +270,8 @@ SplitStringResult String::Split(const String& delimiters) noexcept
 
 static SplitStringResult _split(String& string, const char* delimiters, size_t length)
 {
+    CHECK_ERROR(string.error, { {}, string.error });
+
     if (!delimiters) return { { &string, 1 }, Error() };
 
     size_t wordsCount = _countWords(string, delimiters, length);
@@ -287,6 +309,8 @@ Error String::Filter(const String& filter) noexcept
 
 static Error _filter(String& string, const char* filter)
 {
+    CHECK_ERROR(string.error, string.error);
+
     SoftAssert(filter, ERROR_NULLPTR);
 
     const char* readPtr  = string.buf;
@@ -361,6 +385,9 @@ String::String(String&& other) noexcept
     other.capacity = SIZET_POISON;
     other.length   = SIZET_POISON;
 }
+
+String::String(char* buf, size_t capacity, size_t length, Error error)
+    : buf(buf), capacity(capacity), length(length), error(error) {}
 
 String::~String() noexcept
 {

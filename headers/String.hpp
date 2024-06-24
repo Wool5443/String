@@ -7,6 +7,7 @@ struct StringResult;
 struct SplitString;
 struct SplitStringResult;
 
+
 struct String
 {
     char*  buf;
@@ -18,6 +19,7 @@ struct String
     String(size_t capacity) noexcept;
     String(const char* string) noexcept;
     String(const char* string, size_t length) noexcept;
+    String(char* buf, size_t capacity, size_t length, Error error);
     ~String() noexcept;
 
     String(const String& other) noexcept;
@@ -72,3 +74,6 @@ struct SplitStringResult
 };
 
 String operator+(const String& left, const String& right) noexcept;
+
+static const String BAD_STRING(nullptr, SIZET_POISON, SIZET_POISON,
+                               Error(ERROR_BAD_FIELDS, nullptr, SIZET_POISON, nullptr));
