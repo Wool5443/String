@@ -37,6 +37,90 @@ static size_t            _countWords(const String& string, const char* delimiter
 static SplitStringResult _split(String& string, const char* delimiters, size_t length);
 static Error             _filter(String& string, const char* filter);
 
+String::String() noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+    error = this->Create();
+}
+
+String::String(size_t capacity) noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+    error = this->Create(capacity);
+}
+
+String::String(const char* string) noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+    error = this->Create(string);
+}
+
+String::String(const char* string, size_t length) noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+
+    error = this->Create(string, length);
+}
+
+String::String(const String& other) noexcept
+    : buf(nullptr), capacity(0), length(0), error()
+{
+    error = this->Create(other);
+}
+
+String::String(String&& other) noexcept
+    : buf(other.buf), capacity(other.capacity),
+      length(other.length), error(other.error)
+{
+    other.buf      = nullptr;
+    other.capacity = SIZET_POISON;
+    other.length   = SIZET_POISON;
+}
+
+String::String(char* buf, size_t capacity, size_t length, Error error)
+    : buf(buf), capacity(capacity), length(length), error(error) {}
+
+String::~String() noexcept
+{
+    this->Destructor();
+}
+
+String& String::operator+=(const char* other) noexcept
+{
+    error = this->Append(other);
+    return *this;
+}
+
+String& String::operator+=(const String& other) noexcept
+{
+    error = this->Append(other);
+    return *this;
+}
+
+String& String::operator=(const String& other) noexcept
+{
+    error = this->Create(other);
+    return *this;
+}
+
+String& String::operator=(String&& other) noexcept
+{
+    this->buf      = other.buf;
+    this->capacity = other.capacity;
+    this->length   = other.length;
+
+    other.buf      = nullptr;
+    other.capacity = SIZET_POISON;
+    other.length   = SIZET_POISON;
+
+    return *this;
+}
+
+String operator+(const String& left, const String& right) noexcept
+{
+    return left.Concat(right);
+}
+
 Error String::Create() noexcept
 {
     return _create(*this, 0, DEFAULT_STRING_CAPACITY, nullptr);
@@ -253,6 +337,17 @@ void SplitString::Destructor()
     this->wordsCount = 0;
 }
 
+SplitString::SplitString() noexcept
+    : words(nullptr), wordsCount(SIZET_POISON) {}
+
+SplitString::SplitString(String* words, size_t wordsCount) noexcept
+    : words(words), wordsCount(wordsCount) {}
+
+SplitString::~SplitString() noexcept
+{
+    this->Destructor();
+}
+
 SplitStringResult String::Split() noexcept
 {
     return _split(*this, SPACE_CHARS, SPACE_CHARS_LENGTH);
@@ -288,7 +383,7 @@ static SplitStringResult _split(String& string, const char* delimiters, size_t l
         i++;
     }
 
-    return { words, i };
+    return { SplitString(words, i), Error() };
 }
 
 Error String::Filter() noexcept
@@ -344,82 +439,4 @@ bool String::IsSpaceCharacters(const char* string)
     if (*string == '\0')
         return true;
     return false;
-}
-
-String::String() noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    error = this->Create();
-}
-
-String::String(size_t capacity) noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    error = this->Create(capacity);
-}
-
-String::String(const char* string) noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    error = this->Create(string);
-}
-
-String::String(const char* string, size_t length) noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-
-    error = this->Create(string, length);
-}
-
-String::String(const String& other) noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    error = this->Create(other);
-}
-
-String::String(String&& other) noexcept
-    : buf(other.buf), capacity(other.capacity),
-      length(other.length), error(other.error)
-{
-    other.buf      = nullptr;
-    other.capacity = SIZET_POISON;
-    other.length   = SIZET_POISON;
-}
-
-String::String(char* buf, size_t capacity, size_t length, Error error)
-    : buf(buf), capacity(capacity), length(length), error(error) {}
-
-String::~String() noexcept
-{
-    this->Destructor();
-}
-
-String& String::operator+=(const String& other) noexcept
-{
-    error = this->Append(other);
-    return *this;
-}
-
-String& String::operator=(const String& other) noexcept
-{
-    error = this->Create(other);
-    return *this;
-}
-
-String& String::operator=(String&& other) noexcept
-{
-    this->buf      = other.buf;
-    this->capacity = other.capacity;
-    this->length   = other.length;
-
-    other.buf      = nullptr;
-    other.capacity = SIZET_POISON;
-    other.length   = SIZET_POISON;
-
-    return *this;
-}
-
-String operator+(const String& left, const String& right) noexcept
-{
-    return left.Concat(right);
 }

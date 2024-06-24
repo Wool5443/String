@@ -25,7 +25,5 @@ int main()
         puts(wordsRes.value.words[i].buf);
     }
 
-    wordsRes.value.Destructor();
-
     return 0;
 }

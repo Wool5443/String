@@ -7,7 +7,6 @@ struct StringResult;
 struct SplitString;
 struct SplitStringResult;
 
-
 struct String
 {
     char*  buf;
@@ -25,6 +24,7 @@ struct String
     String(const String& other) noexcept;
     String(String&& other) noexcept;
 
+    String& operator+=(const char* other) noexcept;
     String& operator+=(const String& other) noexcept;
     String& operator=(const String& other) noexcept;
     String& operator=(String&& other) noexcept;
@@ -64,6 +64,10 @@ struct SplitString
     String* words;
     size_t  wordsCount;
 
+    SplitString() noexcept;
+    SplitString(String* string, size_t wordsCount) noexcept;
+    ~SplitString() noexcept;
+
     void    Destructor();
 };
 
@@ -75,5 +79,4 @@ struct SplitStringResult
 
 String operator+(const String& left, const String& right) noexcept;
 
-static const String BAD_STRING(nullptr, SIZET_POISON, SIZET_POISON,
-                               Error(ERROR_BAD_FIELDS, nullptr, SIZET_POISON, nullptr));
+static const String BAD_STRING(nullptr, SIZET_POISON, SIZET_POISON, Error());
