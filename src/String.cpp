@@ -19,8 +19,8 @@ do                              \
 
 static inline __attribute__((always_inline)) size_t _calcCapacity(size_t capacity, size_t hintLength)
 {
-    if (hintLength < DEFAULT_STRING_CAPACITY)
-        return DEFAULT_STRING_CAPACITY;
+    if (hintLength < capacity)
+        return capacity;
     return hintLength ?
            capacity * 
            (size_t)pow(2, 
@@ -28,6 +28,7 @@ static inline __attribute__((always_inline)) size_t _calcCapacity(size_t capacit
            : DEFAULT_STRING_CAPACITY;
 }
 
+void                     _destructor(String& string) noexcept;
 static Error             _create(String& string, size_t length, size_t capacity, const char* data);
 static Error             _realloc(String& string, size_t hintLength);
 static size_t            _countStr(const char*   string, const char* needle);
@@ -40,32 +41,32 @@ static Error             _filter(String& string, const char* filter);
 String::String() noexcept
     : buf(nullptr), capacity(0), length(0), error()
 {
-    error = this->Create();
+    error = _create(*this, 0, DEFAULT_STRING_CAPACITY, nullptr);
 }
 
 String::String(size_t capacity) noexcept
     : buf(nullptr), capacity(0), length(0), error()
 {
-    error = this->Create(capacity);
+    error = _create(*this, 0, _calcCapacity(DEFAULT_STRING_CAPACITY, capacity), nullptr);
 }
 
 String::String(const char* string) noexcept
     : buf(nullptr), capacity(0), length(0), error()
 {
-    error = this->Create(string);
+    size_t length = strlen(string);
+    error = _create(*this, length, _calcCapacity(DEFAULT_STRING_CAPACITY, length), string);
 }
 
 String::String(const char* string, size_t length) noexcept
     : buf(nullptr), capacity(0), length(0), error()
 {
-
-    error = this->Create(string, length);
+    error = _create(*this, length, _calcCapacity(DEFAULT_STRING_CAPACITY, length), string);
 }
 
 String::String(const String& other) noexcept
     : buf(nullptr), capacity(0), length(0), error()
 {
-    error = this->Create(other);
+    error = _create(*this, other.length, other.capacity, other.buf);
 }
 
 String::String(String&& other) noexcept
@@ -82,7 +83,7 @@ String::String(char* buf, size_t capacity, size_t length, Error error)
 
 String::~String() noexcept
 {
-    this->Destructor();
+    _destructor(*this);
 }
 
 String& String::operator+=(const char* other) noexcept
@@ -99,12 +100,15 @@ String& String::operator+=(const String& other) noexcept
 
 String& String::operator=(const String& other) noexcept
 {
-    error = this->Create(other);
+    _destructor(*this);
+    _create(*this, other.length, other.capacity, other.buf);
     return *this;
 }
 
 String& String::operator=(String&& other) noexcept
 {
+    _destructor(*this);
+
     this->buf      = other.buf;
     this->capacity = other.capacity;
     this->length   = other.length;
@@ -119,32 +123,6 @@ String& String::operator=(String&& other) noexcept
 String operator+(const String& left, const String& right) noexcept
 {
     return left.Concat(right);
-}
-
-Error String::Create() noexcept
-{
-    return _create(*this, 0, DEFAULT_STRING_CAPACITY, nullptr);
-}
-
-Error String::Create(size_t capacity) noexcept
-{
-    return _create(*this, 0, capacity, nullptr);
-}
-
-Error String::Create(const char* string) noexcept
-{
-    size_t length = strlen(string);
-    return _create(*this, length, _calcCapacity(DEFAULT_STRING_CAPACITY, length), string);
-}
-
-Error String::Create(const char* string, size_t length) noexcept
-{
-    return _create(*this, length, _calcCapacity(DEFAULT_STRING_CAPACITY, length), string);
-}
-
-Error String::Create(const String& string) noexcept
-{
-    return _create(*this, string.length, string.capacity, string.buf);
 }
 
 static Error _create(String& string, size_t length, size_t capacity, const char* data)
@@ -189,14 +167,14 @@ static Error _realloc(String& string, size_t hintLength)
     return Error();
 }
 
-void String::Destructor() noexcept
+void _destructor(String& string) noexcept
 {
-    CHECK_ERROR(this->error);
+    CHECK_ERROR(string.error);
 
-    free(this->buf);
-    this->buf       = nullptr;
-    this->capacity  = 0;
-    this->length    = 0;
+    free(string.buf);
+    string.buf      = nullptr;
+    string.capacity = 0;
+    string.length   = 0;
 }
 
 Error String::Append(char chr) noexcept
@@ -327,16 +305,6 @@ static size_t _countWords(const String& string, const char* delimiters, size_t l
     return wordsCount;
 }
 
-void SplitString::Destructor()
-{
-    for (size_t i = 0; i < this->wordsCount; i++)
-        this->words[i].Destructor();
-
-    free(this->words);
-    this->words      = nullptr;
-    this->wordsCount = 0;
-}
-
 SplitString::SplitString() noexcept
     : words(nullptr), wordsCount(SIZET_POISON) {}
 
@@ -345,7 +313,12 @@ SplitString::SplitString(String* words, size_t wordsCount) noexcept
 
 SplitString::~SplitString() noexcept
 {
-    this->Destructor();
+    for (size_t i = 0; i < this->wordsCount; i++)
+        this->words[i].~String();
+
+    free(this->words);
+    this->words      = nullptr;
+    this->wordsCount = 0;
 }
 
 SplitStringResult String::Split() noexcept
@@ -378,7 +351,11 @@ static SplitStringResult _split(String& string, const char* delimiters, size_t l
     size_t i = 0;
     while (currentToken)
     {
-        words[i].Create(currentToken);
+        size_t length = strlen(currentToken);
+        RETURN_ERROR_RESULT(_create(words[i], length,
+                                    _calcCapacity(DEFAULT_STRING_CAPACITY, length), currentToken),
+                                    {});
+
         currentToken = strtok(nullptr, delimiters);
         i++;
     }

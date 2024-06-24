@@ -12,6 +12,8 @@ int main()
     puts(a.buf);
     puts(b.buf);
 
+    b = "Hello my dear friends. Today we are going to test some strings.";
+
     SplitStringResult wordsRes = b.Split();
 
     if (wordsRes.error)
@@ -21,9 +23,7 @@ int main()
     }
 
     for (size_t i = 0; i < wordsRes.value.wordsCount; i++)
-    {
         puts(wordsRes.value.words[i].buf);
-    }
 
     return 0;
 }

@@ -14,27 +14,21 @@ struct String
     size_t length;
     Error  error;
 
-    String() noexcept;
-    String(size_t capacity) noexcept;
-    String(const char* string) noexcept;
-    String(const char* string, size_t length) noexcept;
-    String(char* buf, size_t capacity, size_t length, Error error);
-    ~String() noexcept;
+                      String() noexcept;
+                      String(size_t capacity) noexcept;
+                      String(const char* string) noexcept;
+                      String(const char* string, size_t length) noexcept;
+                      String(char* buf, size_t capacity, size_t length, Error error);
+                      ~String() noexcept;
 
-    String(const String& other) noexcept;
-    String(String&& other) noexcept;
+                      String(const String& other) noexcept;
+                      String(String&& other) noexcept;
 
-    String& operator+=(const char* other) noexcept;
-    String& operator+=(const String& other) noexcept;
-    String& operator=(const String& other) noexcept;
-    String& operator=(String&& other) noexcept;
+    String&           operator+=(const char* other) noexcept;
+    String&           operator+=(const String& other) noexcept;
+    String&           operator=(const String& other) noexcept;
+    String&           operator=(String&& other) noexcept;
 
-    Error             Create() noexcept;
-    Error             Create(size_t capacity) noexcept;
-    Error             Create(const char* string) noexcept;
-    Error             Create(const char* string, size_t length) noexcept;
-    Error             Create(const String& string) noexcept;
-    void              Destructor() noexcept;
 
     Error             Append(char chr) noexcept;
     Error             Append(const char*   string) noexcept;
@@ -65,8 +59,13 @@ struct SplitString
     size_t  wordsCount;
 
     SplitString() noexcept;
-    SplitString(String* string, size_t wordsCount) noexcept;
+    SplitString(const SplitString& other) = delete;
+    SplitString(SplitString&& other) = delete;
+    SplitString(String* words, size_t wordsCount) noexcept;
     ~SplitString() noexcept;
+
+    String& operator=(const SplitString& other) = delete;
+    String& operator=(SplitString&& other) = delete;
 
     void    Destructor();
 };
