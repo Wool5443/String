@@ -24,6 +24,8 @@ struct String
                       String(const String& other) noexcept;
                       String(String&& other) noexcept;
 
+                      operator char*() { return this->buf; };
+
     String&           operator+=(const char* other) noexcept;
     String&           operator+=(const String& other) noexcept;
     String&           operator=(const String& other) noexcept;

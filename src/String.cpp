@@ -239,7 +239,7 @@ static String _concat(const String& string, const char* add, size_t length)
         return newString;
     }
 
-    memcpy(newString.buf + string.length, add, length);
+    _append(newString, add, length);
 
     return newString;
 }
