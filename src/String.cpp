@@ -9,6 +9,8 @@ static const size_t SPACE_CHARS_LENGTH = 6;
 
 static inline __attribute__((always_inline)) size_t _calcCapacity(size_t capacity, size_t hintLength)
 {
+    if (hintLength < DEFAULT_STRING_CAPACITY)
+        return DEFAULT_STRING_CAPACITY;
     return hintLength ?
            capacity * 
            (size_t)pow(2, 
@@ -53,6 +55,9 @@ Error String::Create(const String& string) noexcept
 
 static Error _create(String& string, size_t length, size_t capacity, const char* data)
 {
+    string.capacity = capacity;
+    string.length   = length;
+
     string.buf = (char*)calloc(string.capacity, 1);
 
     if (!string.buf)
@@ -60,9 +65,6 @@ static Error _create(String& string, size_t length, size_t capacity, const char*
         string.error = CREATE_ERROR(ERROR_NO_MEMORY);
         return string.error;
     }
-
-    string.capacity = capacity;
-    string.length   = length;
 
     if (data)
         memcpy(string.buf, data, length);
