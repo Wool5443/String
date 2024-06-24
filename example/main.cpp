@@ -8,12 +8,7 @@ int main()
     string.Create(text);
 
     SplitStringResult split = string.Split(" .,!\t\n");
-
-    if (split.error)
-    {
-        printf("%s[%d]\n", ERROR_CODE_NAMES[split.error], split.error);
-        return split.error;
-    }
+    split.error.Print();
 
     for (size_t i = 0; i < split.value.wordsCount; i++)
         printf("%s\n", split.value.words[i].buf);

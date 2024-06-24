@@ -11,37 +11,35 @@ struct String
     char*  buf;
     size_t length;
     size_t capacity;
-    bool   allocated;
 
-    Error Create();
-    Error Create(size_t capacity);
-    Error Create(const char* string);
-    Error Create(const char* string, size_t length);
-    Error Create(const String* string);
-    void              Destructor();
+    Error             Create() noexcept;
+    Error             Create(size_t capacity) noexcept;
+    Error             Create(const char* string) noexcept;
+    Error             Create(const char* string, size_t length) noexcept;
+    Error             Create(const String& string) noexcept;
+    void              Destructor() noexcept;
 
-    Error Append(char chr);
-    Error Append(const char*   string);
-    Error Append(const String* string);
+    Error             Append(char chr) noexcept;
+    Error             Append(const char*   string) noexcept;
+    Error             Append(const String& string) noexcept;
 
-    StringResult      Concat(const char*   string);
-    StringResult      Concat(const String* string);
+    StringResult      Concat(const char*   string) noexcept;
+    StringResult      Concat(const String& string) noexcept;
 
-    size_t            Count(char character) const;
-    size_t            Count(const char*   string) const;
-    size_t            Count(const String* string) const;
+    size_t            Count(char character) const noexcept;
+    size_t            Count(const char*   string) const noexcept;
+    size_t            Count(const String& string) const noexcept;
 
-    SplitStringResult Split();
-    SplitStringResult Split(const char*   delimiters);
-    SplitStringResult Split(const String* delimiters);
+    SplitStringResult Split() noexcept;
+    SplitStringResult Split(const char*   delimiters) noexcept;
+    SplitStringResult Split(const String& delimiters) noexcept;
 
-    Error Filter();
-    Error Filter(const char*   filter);
-    Error Filter(const String* filter);
+    Error             Filter() noexcept;
+    Error             Filter(const char*   filter) noexcept;
+    Error             Filter(const String& filter) noexcept;
 
-    bool              IsSpaceCharacters() const;
-
-    static bool       IsSpaceCharacters(const char* string);
+    bool              IsSpaceCharacters() const noexcept;
+    static bool       IsSpaceCharacters(const char* string) noexcept;
 };
 
 struct StringResult

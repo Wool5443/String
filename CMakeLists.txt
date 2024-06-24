@@ -13,7 +13,7 @@ set(SOURCES
     "Utils/Utils.cpp"
     "Utils/Utils.hpp"
     "src/String.cpp"
-    "src/main.cpp"
+    "example/main.cpp"
     "headers/String.hpp"
 )
 
