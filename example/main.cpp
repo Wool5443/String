@@ -2,24 +2,28 @@
 
 int main()
 {
-    char text[] = "hello friends. world, amigo!!!\tverbal";
+    String a("Hello");
+    a += " ";
+    a += "world";
+    String b = a;
 
-    String string = {};
-    string.Create(text);
+    a.buf[0] = 'h';
 
-    SplitStringResult split = string.Split(" .,!\t\n");
+    puts(a.buf);
+    puts(b.buf);
 
-    if (split.error)
+    b = "Hello my dear friends. Today we are going to test some strings.";
+
+    SplitStringResult wordsRes = b.Split();
+
+    if (wordsRes.error)
     {
-        printf("%s[%d]\n", ERROR_CODE_NAMES[split.error], split.error);
-        return split.error;
+        wordsRes.error.Print();
+        return wordsRes.error;
     }
 
-    for (size_t i = 0; i < split.value.wordsCount; i++)
-        printf("%s\n", split.value.words[i].buf);
-
-    string.Destructor();
-    split.value.Destructor();
+    for (size_t i = 0; i < wordsRes.value.wordsCount; i++)
+        puts(wordsRes.value.words[i].buf);
 
     return 0;
 }
