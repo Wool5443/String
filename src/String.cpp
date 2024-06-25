@@ -29,7 +29,7 @@ Containers::String::String()
 Containers::String::String(const char* string, std::size_t length)
     : String(calcCapacity(length), length)
 {
-    std::copy(string, string + length, (char*)m_buf);
+    std::copy(string, string + length, m_buf.Buffer());
 }
 
 Containers::String::String(const char* string)
