@@ -11,9 +11,15 @@ private:
     std::size_t  m_capacity;
     std::size_t  m_length;
     Utils::Error m_error;
-private:
-    StringBuffer(std::size_t capacity);
 public:
     StringBuffer();
+    StringBuffer(const StringBuffer& other);
+    StringBuffer(StringBuffer&& other);
+    ~StringBuffer();
+public:
+    StringBuffer& operator=(const StringBuffer& other);
+    StringBuffer& operator=(StringBuffer&& other);
+public:
+    StringBuffer(std::size_t capacity);
 };
 }
