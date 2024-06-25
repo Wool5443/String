@@ -11,6 +11,7 @@ private:
 public:
     String();
     String(std::size_t capacity);
+    String(std::size_t capacity, std::size_t length);
     String(const char* string);
     String(const char* string, std::size_t length);
 

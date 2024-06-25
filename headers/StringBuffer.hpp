@@ -14,6 +14,7 @@ private:
 public:
     StringBuffer();
     StringBuffer(std::size_t capacity);
+    StringBuffer(std::size_t capacity, std::size_t length);
     StringBuffer(const StringBuffer& other);
     StringBuffer(StringBuffer&& other);
     ~StringBuffer();

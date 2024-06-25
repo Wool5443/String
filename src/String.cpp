@@ -20,11 +20,14 @@ namespace
 Containers::String::String(std::size_t capacity)
     : m_buf(capacity) {}
 
+Containers::String::String(std::size_t capacity, std::size_t length)
+    : m_buf(capacity, length) {}
+
 Containers::String::String()
     : m_buf() {}
 
 Containers::String::String(const char* string, std::size_t length)
-    : String(calcCapacity(length))
+    : String(calcCapacity(length), length)
 {
     std::copy(string, string + length, (char*)m_buf);
 }
