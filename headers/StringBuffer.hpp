@@ -21,7 +21,7 @@ public:
     StringBuffer& operator=(const StringBuffer& other);
     StringBuffer& operator=(StringBuffer&& other);
 public:
-    operator bool()         { return m_error; }
+    operator bool()         { return m_buf; }
     operator Utils::Error() { return m_error; }
     operator char*()        { return m_buf; }
 };

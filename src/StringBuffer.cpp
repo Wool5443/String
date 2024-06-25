@@ -4,7 +4,7 @@
 using namespace StringBufferSettings;
 
 Buffers::StringBuffer::StringBuffer(std::size_t capacity)
-    : m_buf(new char[capacity]), m_capacity(capacity),
+    : m_buf(new char[capacity]{}), m_capacity(capacity),
       m_length(0), m_error()
 {
     if (!m_buf)
@@ -21,7 +21,7 @@ Buffers::StringBuffer::StringBuffer()
     : StringBuffer(DEFAULT_STRING_CAPACITY) {}
 
 Buffers::StringBuffer::StringBuffer(const StringBuffer& other)
-    : m_buf(new char[other.m_capacity]), m_capacity(other.m_capacity),
+    : m_buf(new char[other.m_capacity]{}), m_capacity(other.m_capacity),
       m_length(other.m_length), m_error()
 {
     if (!m_buf)
@@ -48,7 +48,7 @@ Buffers::StringBuffer& Buffers::StringBuffer::operator=(const StringBuffer& othe
     m_capacity = other.m_capacity;
     m_length   = other.m_length;
 
-    m_buf      = new char[m_capacity];
+    m_buf      = new char[m_capacity]{};
     if (!m_buf) 
     {
         m_error = CREATE_ERROR(Utils::ErrorCode::ERROR_NO_MEMORY);
@@ -66,4 +66,6 @@ Buffers::StringBuffer& Buffers::StringBuffer::operator=(StringBuffer&& other)
     m_capacity = other.m_capacity;
     m_length   = other.m_length;
     m_error    = other.m_error;
+
+    return *this;
 }
