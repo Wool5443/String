@@ -13,6 +13,7 @@ private:
     Utils::Error m_error;
 public:
     StringBuffer();
+    StringBuffer(std::size_t capacity);
     StringBuffer(const StringBuffer& other);
     StringBuffer(StringBuffer&& other);
     ~StringBuffer();
@@ -20,6 +21,7 @@ public:
     StringBuffer& operator=(const StringBuffer& other);
     StringBuffer& operator=(StringBuffer&& other);
 public:
-    StringBuffer(std::size_t capacity);
+    operator bool()  { return m_error; }
+    operator char*() { return m_buf; }
 };
 }
