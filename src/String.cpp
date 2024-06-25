@@ -34,3 +34,41 @@ Containers::String::String(const char* string, std::size_t length)
 
 Containers::String::String(const char* string)
     : String(string, strlen(string)) {}
+
+Containers::String& Containers::String::operator+=(const String& other)
+{
+    std::size_t newLength = this->Length() + other.Length();
+
+    if (newLength > this->Capacity())
+    {
+        this->realloc(newLength);
+        if (this->Error()) return *this;
+    }
+
+    std::copy(other.Buffer(), other.Buffer() + other.Length(), this->Buffer() + this->Length());
+
+    return *this;
+}
+
+void Containers::String::realloc(std::size_t newLength)
+{
+    std::size_t newCapacity = this->Capacity() / StringBufferSettings::STRING_GROW_FACTOR;
+
+    if (newLength > this->Capacity())
+        newCapacity = calcCapacity(newLength);
+    else if (newLength >= newCapacity)
+        return;
+
+    Buffers::StringBuffer newBuf{ newCapacity, this->Length() };
+    if (newBuf.Error())
+    {
+        this->Error() = newBuf.Error();
+        return;
+    }
+
+    char* oldBuf = this->Buffer();
+
+    std::copy(oldBuf, oldBuf + this->Length(), newBuf.Buffer());
+
+    this->m_buf = std::move(newBuf);
+}

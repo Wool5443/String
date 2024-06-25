@@ -22,8 +22,11 @@ public:
     StringBuffer& operator=(const StringBuffer& other);
     StringBuffer& operator=(StringBuffer&& other);
 public:
-    char*         Buffer() & { return m_buf; }
-    std::size_t   Length()   { return m_length; }
-    Utils::Error& Error() &  { return m_error; }
+    inline char*               __attribute__((always_inline)) Buffer()           { return m_buf; }
+    inline const char*         __attribute__((always_inline)) Buffer()   const   { return m_buf; }
+    inline std::size_t         __attribute__((always_inline)) Capacity() const   { return m_capacity; }
+    inline std::size_t         __attribute__((always_inline)) Length()   const   { return m_length; }
+    inline Utils::Error&       __attribute__((always_inline)) Error()          & { return m_error; }
+    inline const Utils::Error& __attribute__((always_inline)) Error()    const & { return m_error; }
 };
 }

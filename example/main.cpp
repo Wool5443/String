@@ -9,5 +9,10 @@ int main()
     std::puts(a);
     std::puts(b);
 
+    Containers::String c = a;
+    c += b;
+
+    std::puts(c);
+
     return 0;
 }
