@@ -2,28 +2,12 @@
 
 int main()
 {
-    String a("Hello");
-    a += " ";
-    a += "world";
-    String b = a;
+    Containers::String a{"Hello"};
+    std::puts(a);
 
-    a.buf[0] = 'h';
-
-    puts(a.buf);
-    puts(b.buf);
-
-    b = "Hello my dear friends. Today we are going to test some strings.";
-
-    SplitStringResult wordsRes = b.Split();
-
-    if (wordsRes.error)
-    {
-        wordsRes.error.Print();
-        return wordsRes.error;
-    }
-
-    for (size_t i = 0; i < wordsRes.value.wordsCount; i++)
-        puts(wordsRes.value.words[i].buf);
+    Containers::String b = a;
+    std::puts(a);
+    std::puts(b);
 
     return 0;
 }

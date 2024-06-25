@@ -1,14 +1,10 @@
 #pragma once
 
-#include "Utils.hpp"
+#include "StringBuffer.hpp"
 
-struct String;
-struct StringResult;
-struct SplitString;
-struct SplitStringResult;
-
-struct String
+namespace Containers
 {
+<<<<<<< HEAD
     char*  buf;
     size_t capacity;
     size_t length;
@@ -56,28 +52,25 @@ struct String
 };
 
 struct SplitString
+=======
+class String
+>>>>>>> Actually-good-string
 {
-    String* words;
-    size_t  wordsCount;
+private:
+    Buffers::StringBuffer m_buf;
+    String(std::size_t capacity, std::size_t length);
+public:
+    String();
+    String(std::size_t capacity);
+    String(const char* string);
+    String(const char* string, std::size_t length);
 
-    SplitString() noexcept;
-    SplitString(const SplitString& other) = delete;
-    SplitString(SplitString&& other) = delete;
-    SplitString(String* words, size_t wordsCount) noexcept;
-    ~SplitString() noexcept;
+    inline char*        __attribute__((always_inline)) Buffer() { return m_buf.Buffer(); }
+    inline std::size_t  __attribute__((always_inline)) Length() { return m_buf.Length(); }
+    inline Utils::Error __attribute__((always_inline)) Error()  { return m_buf.Error(); }
 
-    String& operator=(const SplitString& other) = delete;
-    String& operator=(SplitString&& other) = delete;
-
-    void    Destructor();
+    operator Utils::Error() { return this->Error(); }
+    operator char*()        { return this->Buffer(); }
+    operator bool()         { return this->Buffer(); }
 };
-
-struct SplitStringResult
-{
-    SplitString value;
-    Error       error;
-};
-
-String operator+(const String& left, const String& right) noexcept;
-
-static const String BAD_STRING(nullptr, SIZET_POISON, SIZET_POISON, Error());
+}

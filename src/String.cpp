@@ -1,172 +1,38 @@
-#include <errno.h>
-#include <math.h>
-#include <ctype.h>
+#include <cmath>
+#include <cctype>
+#include <cstring>
 #include "String.hpp"
-#include "StringSettings.hpp"
+#include "StringBufferSettings.hpp"
 
-static const char*  SPACE_CHARS        = " \t\n\r\v\f";
-static const size_t SPACE_CHARS_LENGTH = 6;
-
-#define CHECK_ERROR(error, ...) \
-do                              \
-{                               \
-    if (error)                  \
-    {                           \
-        error.Print();          \
-        return __VA_ARGS__;     \
-    }                           \
-}   while (0)
-
-static inline __attribute__((always_inline)) size_t _calcCapacity(size_t capacity, size_t hintLength)
+namespace
 {
-    if (hintLength < capacity)
-        return capacity;
-    return hintLength ?
-           capacity * 
-           (size_t)pow(2, 
-           (size_t)log2((double)hintLength / (double)capacity) + 1)
-           : DEFAULT_STRING_CAPACITY;
-}
-
-void                     _destructor(String& string) noexcept;
-static Error             _create(String& string, size_t length, size_t capacity, const char* data);
-static Error             _realloc(String& string, size_t hintLength);
-static size_t            _countStr(const char*   string, const char* needle);
-Error                    _append(String& string, const char* add, size_t length);
-static String            _concat(const String& string, const char* add, size_t length);
-static size_t            _countWords(const String& string, const char* delimiters, size_t length);
-static SplitStringResult _split(String& string, const char* delimiters, size_t length);
-static Error             _filter(String& string, const char* filter);
-
-String::String() noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    error = _create(*this, 0, DEFAULT_STRING_CAPACITY, nullptr);
-}
-
-String::String(size_t capacity) noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    error = _create(*this, 0, _calcCapacity(DEFAULT_STRING_CAPACITY, capacity), nullptr);
-}
-
-String::String(const char* string) noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    size_t length = strlen(string);
-    error = _create(*this, length, _calcCapacity(DEFAULT_STRING_CAPACITY, length), string);
-}
-
-String::String(const char* string, size_t length) noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    error = _create(*this, length, _calcCapacity(DEFAULT_STRING_CAPACITY, length), string);
-}
-
-String::String(const String& other) noexcept
-    : buf(nullptr), capacity(0), length(0), error()
-{
-    error = _create(*this, other.length, other.capacity, other.buf);
-}
-
-String::String(String&& other) noexcept
-    : buf(other.buf), capacity(other.capacity),
-      length(other.length), error(other.error)
-{
-    other.buf      = nullptr;
-    other.capacity = SIZET_POISON;
-    other.length   = SIZET_POISON;
-}
-
-String::String(char* buf, size_t capacity, size_t length, Error error)
-    : buf(buf), capacity(capacity), length(length), error(error) {}
-
-String::~String() noexcept
-{
-    _destructor(*this);
-}
-
-String& String::operator+=(const char* other) noexcept
-{
-    error = this->Append(other);
-    return *this;
-}
-
-String& String::operator+=(const String& other) noexcept
-{
-    error = this->Append(other);
-    return *this;
-}
-
-String& String::operator=(const String& other) noexcept
-{
-    _destructor(*this);
-    _create(*this, other.length, other.capacity, other.buf);
-    return *this;
-}
-
-String& String::operator=(String&& other) noexcept
-{
-    _destructor(*this);
-
-    this->buf      = other.buf;
-    this->capacity = other.capacity;
-    this->length   = other.length;
-
-    other.buf      = nullptr;
-    other.capacity = SIZET_POISON;
-    other.length   = SIZET_POISON;
-
-    return *this;
-}
-
-String operator+(const String& left, const String& right) noexcept
-{
-    return left.Concat(right);
-}
-
-static Error _create(String& string, size_t length, size_t capacity, const char* data)
-{
-    CHECK_ERROR(string.error, string.error);
-
-    string.capacity = capacity;
-    string.length   = length;
-
-    string.buf = (char*)calloc(string.capacity, 1);
-
-    if (!string.buf)
+    inline __attribute__((always_inline)) std::size_t calcCapacity(std::size_t hintLength)
     {
-        string.error = CREATE_ERROR(ERROR_NO_MEMORY);
-        return string.error;
+        std::size_t capacity = StringBufferSettings::DEFAULT_STRING_CAPACITY;
+
+        while (capacity <= hintLength)
+            capacity *= StringBufferSettings::STRING_GROW_FACTOR;
+
+        return capacity;
     }
-
-    if (data)
-        memcpy(string.buf, data, length);
-
-    string.error = Error();
-    return Error();
 }
 
-static Error _realloc(String& string, size_t hintLength)
+Containers::String::String(std::size_t capacity)
+    : m_buf(capacity) {}
+
+Containers::String::String(std::size_t capacity, std::size_t length)
+    : m_buf(capacity, length) {}
+
+Containers::String::String()
+    : m_buf() {}
+
+Containers::String::String(const char* string, std::size_t length)
+    : String(calcCapacity(length), length)
 {
-    if (hintLength < string.capacity)
-        return Error();
-
-    size_t newCapacity  = _calcCapacity(string.capacity, hintLength);
-
-    char* newBuf = (char*)calloc(newCapacity, 1);
-    if (!newBuf)
-        return CREATE_ERROR(ERROR_NO_MEMORY);
-    if (string.buf)
-        memcpy(newBuf, string.buf, string.capacity);
-
-    free(string.buf);
-    string.buf      = newBuf;
-    string.capacity = newCapacity;
-
-    return Error();
+    std::copy(string, string + length, m_buf.Buffer());
 }
 
+<<<<<<< HEAD
 void _destructor(String& string) noexcept
 {
     CHECK_ERROR(string.error);
@@ -417,3 +283,7 @@ bool String::IsSpaceCharacters(const char* string)
         return true;
     return false;
 }
+=======
+Containers::String::String(const char* string)
+    : String(string, strlen(string)) {}
+>>>>>>> Actually-good-string
