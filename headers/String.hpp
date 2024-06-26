@@ -16,27 +16,27 @@ public:
     String(const char* string);
     String(const char* string, std::size_t length);
 
-    inline char* __attribute__((always_inline)) Buffer()           
+    inline char* Buffer()           
     {
         return m_buf.Buffer();
     }
-    inline const char* __attribute__((always_inline)) Buffer() const
+    inline const char* Buffer() const
     {
         return m_buf.Buffer();
     }
-    inline std::size_t __attribute__((always_inline)) Capacity() const
+    inline std::size_t Capacity() const
     {
         return m_buf.Capacity();
     }
-    inline std::size_t __attribute__((always_inline)) Length() const
+    inline std::size_t Length() const
     {
         return m_buf.Length();
     }
-    inline Utils::Error& __attribute__((always_inline)) Error() &
+    inline Utils::Error& Error() &
     {
         return m_buf.Error();
     }
-    inline const Utils::Error& __attribute__((always_inline)) Error() const &
+    inline const Utils::Error& Error() const &
     {
         return m_buf.Error();
     }

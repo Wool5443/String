@@ -5,7 +5,7 @@
 
 namespace
 {
-    inline __attribute__((always_inline)) std::size_t calcCapacity(std::size_t hintLength)
+    inline std::size_t calcCapacity(std::size_t hintLength)
     {
         std::size_t capacity = Buffers::StringBuffer::DEFAULT_STRING_CAPACITY;
 
