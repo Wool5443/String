@@ -2,16 +2,15 @@
 #include <cctype>
 #include <cstring>
 #include "String.hpp"
-#include "StringBufferSettings.hpp"
 
 namespace
 {
     inline __attribute__((always_inline)) std::size_t calcCapacity(std::size_t hintLength)
     {
-        std::size_t capacity = StringBufferSettings::DEFAULT_STRING_CAPACITY;
+        std::size_t capacity = Buffers::StringBuffer::DEFAULT_STRING_CAPACITY;
 
         while (capacity <= hintLength)
-            capacity *= StringBufferSettings::STRING_GROW_FACTOR;
+            capacity *= Buffers::StringBuffer::STRING_GROW_FACTOR;
 
         return capacity;
     }
@@ -52,7 +51,7 @@ Containers::String& Containers::String::operator+=(const String& other)
 
 void Containers::String::realloc(std::size_t newLength)
 {
-    std::size_t newCapacity = this->Capacity() / StringBufferSettings::STRING_GROW_FACTOR;
+    std::size_t newCapacity = this->Capacity() / Buffers::StringBuffer::STRING_GROW_FACTOR;
 
     if (newLength > this->Capacity())
         newCapacity = calcCapacity(newLength);

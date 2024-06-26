@@ -12,6 +12,9 @@ private:
     std::size_t  m_length;
     Utils::Error m_error;
 public:
+    static const std::size_t DEFAULT_STRING_CAPACITY = 8;
+    static const std::size_t STRING_GROW_FACTOR      = 2;
+public:
     StringBuffer();
     StringBuffer(std::size_t capacity);
     StringBuffer(std::size_t capacity, std::size_t length);

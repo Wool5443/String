@@ -1,7 +1,4 @@
 #include "StringBuffer.hpp"
-#include "StringBufferSettings.hpp"
-
-using namespace StringBufferSettings;
 
 Buffers::StringBuffer::StringBuffer(std::size_t capacity)
     : StringBuffer(capacity, 0) {}
