@@ -1,3 +1,4 @@
+#include <cstring>
 #include "StringBuffer.hpp"
 
 Buffers::StringBuffer::StringBuffer(std::size_t capacity)
@@ -29,7 +30,7 @@ Buffers::StringBuffer::StringBuffer(const StringBuffer& other)
         m_error = CREATE_ERROR(Utils::ErrorCode::ERROR_NO_MEMORY);
         return;
     }
-    std::copy(other.m_buf, other.m_buf + m_length, m_buf);
+    std::memcpy(m_buf, other.m_buf, m_length);
 }
 
 Buffers::StringBuffer::StringBuffer(StringBuffer&& other)
@@ -55,7 +56,7 @@ Buffers::StringBuffer& Buffers::StringBuffer::operator=(const StringBuffer& othe
         return *this;
     }
 
-    std::copy(other.m_buf, other.m_buf + m_length, m_buf);
+    std::memcpy(m_buf, other.m_buf, m_length);
 
     return *this;
 }

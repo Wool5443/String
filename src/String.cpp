@@ -28,7 +28,7 @@ Containers::String::String()
 Containers::String::String(const char* string, std::size_t length)
     : String(calcCapacity(length), length)
 {
-    std::copy(string, string + length, m_buf.Buffer());
+    std::memcpy(m_buf.Buffer(), string, length);
 }
 
 Containers::String::String(const char* string)
@@ -44,7 +44,7 @@ Containers::String& Containers::String::operator+=(const String& other)
         if (this->Error()) return *this;
     }
 
-    std::copy(other.Buffer(), other.Buffer() + other.Length(), this->Buffer() + this->Length());
+    std::memcpy(this->Buffer() + this->Length(), other.Buffer(), other.Length());
 
     return *this;
 }
