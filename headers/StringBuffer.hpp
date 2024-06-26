@@ -15,12 +15,12 @@ public:
     static const std::size_t DEFAULT_STRING_CAPACITY = 8;
     static const std::size_t STRING_GROW_FACTOR      = 2;
 public:
-    StringBuffer();
-    StringBuffer(std::size_t capacity);
-    StringBuffer(std::size_t capacity, std::size_t length);
-    StringBuffer(const StringBuffer& other);
-    StringBuffer(StringBuffer&& other);
-    ~StringBuffer();
+             StringBuffer();
+    explicit StringBuffer(std::size_t capacity);
+             StringBuffer(std::size_t capacity, std::size_t length);
+             StringBuffer(const StringBuffer& other);
+             StringBuffer(StringBuffer&& other);
+             ~StringBuffer();
 public:
     StringBuffer& operator=(const StringBuffer& other);
     StringBuffer& operator=(StringBuffer&& other);
