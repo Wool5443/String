@@ -41,7 +41,6 @@ public:
         return m_buf.Error();
     }
 
-    operator Utils::Error() { return this->Error(); }
     operator char*()        { return this->Buffer(); }
     operator bool()         { return this->Buffer(); }
 
