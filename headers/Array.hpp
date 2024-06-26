@@ -11,10 +11,11 @@ class Array
 private:
     T*           m_buf;
     std::size_t  m_length;
+    std::size_t  m_capacity;
     Utils::Error m_error;
 public:
              Array() = delete;
-    explicit Array(std::size_t length);
+    explicit Array(std::size_t capacity);
              Array(const Array& other);
              Array(Array&& other) noexcept;
              ~Array();
