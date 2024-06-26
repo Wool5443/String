@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MY_STRING_BUFFER_HPP
+#define MY_STRING_BUFFER_HPP
 
 #include "Utils.hpp"
 
@@ -33,3 +34,5 @@ public:
     inline const Utils::Error& Error()    const & { return m_error; }
 };
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MY_STRING_HPP
+#define MY_STRING_HPP
 
 #include "StringBuffer.hpp"
 
@@ -55,3 +56,5 @@ public:
     String& operator+=(const String& other);
 };
 }
+
+#endif
