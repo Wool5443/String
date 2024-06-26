@@ -90,3 +90,27 @@ std::size_t Containers::String::Find(const String& substr)
 
     return found - this->Buffer();
 }
+
+std::size_t Containers::String::Count(char c)
+{
+    // sizeof(void*) for stack protection
+    const char str[sizeof(void*)] = { c, '\0' };
+    return this->Count(str);
+}
+
+std::size_t Containers::String::Count(const String& substr)
+{
+    const char* found = std::strstr(this->Buffer(), substr);
+
+    if (!found) return Utils::SIZET_POISON;
+
+    std::size_t counter = 0;
+
+    while (found)
+    {
+        counter++;
+        found = std::strchr(found + 1, substr);
+    }
+
+    return counter;
+}

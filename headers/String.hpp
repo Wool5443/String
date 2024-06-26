@@ -18,6 +18,8 @@ public:
 public:
     std::size_t Find(char c);
     std::size_t Find(const String& substr);
+    std::size_t Count(char c);
+    std::size_t Count(const String& substr);
 public:
     inline char* Buffer()           
     {
