@@ -11,7 +11,7 @@ private:
     char*        m_buf;
     std::size_t  m_capacity;
     std::size_t  m_length;
-    Utils::Error m_error;
+    Utils::Error m_error = Utils::Error();
 public:
     static const std::size_t DEFAULT_STRING_CAPACITY = 8;
     static const std::size_t STRING_GROW_FACTOR      = 2;
