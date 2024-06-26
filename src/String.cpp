@@ -71,3 +71,22 @@ void Containers::String::realloc(std::size_t newLength)
 
     this->m_buf = std::move(newBuf);
 }
+
+//TODO: Test this
+std::size_t Containers::String::Find(char c)
+{
+    const char* found = std::strchr(this->Buffer(), c);
+
+    if (!found) return Utils::SIZET_POISON;
+
+    return found - this->Buffer();
+}
+
+std::size_t Containers::String::Find(const String& substr)
+{
+    const char* found = std::strstr(*this, substr);
+
+    if (!found) return Utils::SIZET_POISON;
+
+    return found - this->Buffer();
+}

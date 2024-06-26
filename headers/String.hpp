@@ -15,7 +15,10 @@ public:
     String(std::size_t capacity);
     String(const char* string);
     String(const char* string, std::size_t length);
-
+public:
+    std::size_t Find(char c);
+    std::size_t Find(const String& substr);
+public:
     inline char* Buffer()           
     {
         return m_buf.Buffer();
@@ -41,8 +44,9 @@ public:
         return m_buf.Error();
     }
 
-    operator char*()        { return this->Buffer(); }
-    operator bool()         { return this->Buffer(); }
+    operator char*()             { return this->Buffer(); }
+    operator const char*() const { return this->Buffer(); }
+    operator bool()        const { return this->Buffer(); }
 
     String& operator+=(const String& other);
 };
