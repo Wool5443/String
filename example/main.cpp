@@ -1,18 +1,24 @@
+#include <cassert>
 #include "String.hpp"
 
 int main()
 {
-    Containers::String a{"Hello"};
+    using namespace Containers;
+
+    String a{"Hello"};
     std::puts(a);
 
-    Containers::String b = a;
+    String b = a;
     std::puts(a);
     std::puts(b);
 
-    Containers::String c = a;
+    String c = a;
     c += b;
 
     std::puts(c);
+
+    String t1{"hello ! friend!"};
+    String t2{"bye bye sigma nice job"};
 
     return 0;
 }

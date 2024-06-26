@@ -72,7 +72,6 @@ void Containers::String::realloc(std::size_t newLength)
     this->m_buf = std::move(newBuf);
 }
 
-//TODO: Test this
 std::size_t Containers::String::Find(char c)
 {
     const char* found = std::strchr(this->Buffer(), c);
@@ -82,7 +81,7 @@ std::size_t Containers::String::Find(char c)
     return found - this->Buffer();
 }
 
-std::size_t Containers::String::Find(const String& substr)
+std::size_t Containers::String::Find(const char* substr)
 {
     const char* found = std::strstr(*this, substr);
 
@@ -91,14 +90,29 @@ std::size_t Containers::String::Find(const String& substr)
     return found - this->Buffer();
 }
 
-std::size_t Containers::String::Count(char c)
+std::size_t Containers::String::Find(const String& substr)
 {
-    // sizeof(void*) for stack protection
-    const char str[sizeof(void*)] = { c, '\0' };
-    return this->Count(str);
+    return this->Find(substr.Buffer());
 }
 
-std::size_t Containers::String::Count(const String& substr)
+std::size_t Containers::String::Count(char c)
+{
+    const char* found = std::strchr(this->Buffer(), c);
+
+    if (!found) return Utils::SIZET_POISON;
+
+    std::size_t counter = 0;
+
+    while (found)
+    {
+        counter++;
+        found = std::strchr(found + 1, c);
+    }
+
+    return counter;
+}
+
+std::size_t Containers::String::Count(const char* substr)
 {
     const char* found = std::strstr(this->Buffer(), substr);
 
@@ -109,8 +123,13 @@ std::size_t Containers::String::Count(const String& substr)
     while (found)
     {
         counter++;
-        found = std::strchr(found + 1, substr);
+        found = std::strstr(found + 1, substr);
     }
 
     return counter;
+}
+
+std::size_t Containers::String::Count(const String& substr)
+{
+    return this->Count(substr.Buffer());
 }
