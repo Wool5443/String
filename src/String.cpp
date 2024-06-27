@@ -5,6 +5,8 @@
 
 namespace
 {
+    const char* WHITE_SPACE = " \t\n\r\v\f";
+    
     inline std::size_t calcCapacity(std::size_t hintLength)
     {
         std::size_t capacity = Buffers::StringBuffer::DEFAULT_STRING_CAPACITY;
@@ -14,6 +16,8 @@ namespace
 
         return capacity;
     }
+
+    std::size_t countWords(const Containers::String& string, const char* delimeters, std::size_t delimLength);
 }
 
 Containers::String::String(std::size_t capacity)
@@ -132,4 +136,63 @@ std::size_t Containers::String::Count(const char* substr)
 std::size_t Containers::String::Count(const String& substr)
 {
     return this->Count(substr.Buffer());
+}
+
+Buffers::Array<Containers::String> Containers::String::Split()
+{
+    return this->Split(WHITE_SPACE);
+}
+
+Buffers::Array<Containers::String> Containers::String::Split(const char* delimeters)
+{
+    char* buf = this->Buffer();
+
+    std::size_t wordsCount = countWords(*this, delimeters, strlen(delimeters));
+
+    Buffers::Array<String> wordsArray{wordsCount};
+
+    const char* token = strtok(buf, delimeters);
+
+    std::size_t i = 0;
+
+    while (token)
+    {
+        wordsArray[i++] = token;
+        token = strtok(nullptr, delimeters);
+    }
+
+    wordsArray.Length() = i;
+
+    return wordsArray;
+}
+
+Buffers::Array<Containers::String> Containers::String::Split(const String& delimeters)
+{
+    return this->Split(delimeters.Buffer());
+}
+
+namespace
+{
+std::size_t countWords(const Containers::String& string, const char* delimeters, std::size_t delimLength)
+{
+    if (!delimeters) return Utils::SIZET_POISON;
+
+    const char* buffer = string.Buffer();
+
+    std::size_t words  = 1;
+
+    for (std::size_t i = 0, length = string.Length(); i < length; i++)
+    {
+        for (std::size_t j = 0; j < delimLength; j++)
+        {
+            if (buffer[i] == delimeters[j])
+            {
+                words++;
+                break;
+            }
+        }
+    }
+
+    return words;
+}
 }
