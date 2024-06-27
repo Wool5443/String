@@ -78,7 +78,8 @@ Array& operator=(Array&& other) noexcept
 
 T& operator[](std::size_t index) noexcept { return m_buf[index]; }
 public:
-    inline std::size_t         Length() const   noexcept { return m_length; }
+    inline std::size_t&        Length()       & noexcept { return m_length; }
+    inline const std::size_t&  Length() const & noexcept { return m_length; }
     inline Utils::Error&       Error()        & noexcept { return m_error; }
     inline const Utils::Error& Error()  const & noexcept { return m_error; }
 };
