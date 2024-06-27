@@ -20,16 +20,17 @@ public:
     String(const char* string);
     String(const char* string, std::size_t length);
 public:
-    Buffers::Array<String> Split();
-    Buffers::Array<String> Split(const char* delimeters);
-    Buffers::Array<String> Split(const String& delimeters);
-public:
-    std::size_t Find(char c);
-    std::size_t Find(const char* substr);
-    std::size_t Find(const String& substr);
-    std::size_t Count(char c);
-    std::size_t Count(const char* substr);
-    std::size_t Count(const String& substr);
+    std::size_t            Find  (char c);
+    std::size_t            Find  (const char* substr);
+    std::size_t            Find  (const String& substr);
+    std::size_t            Count (char c);
+    std::size_t            Count (const char* substr);
+    std::size_t            Count (const String& substr);
+    Utils::Error           Filter(const char* filter);
+    Utils::Error           Filter(const String& filter);
+    Buffers::Array<String> Split ();
+    Buffers::Array<String> Split (const char* delimeters);
+    Buffers::Array<String> Split (const String& delimeters);
 public:
     inline char* Buffer()           
     {

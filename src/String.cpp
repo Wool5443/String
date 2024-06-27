@@ -5,8 +5,8 @@
 
 namespace
 {
-    const char* WHITE_SPACE = " \t\n\r\v\f";
-    
+    const char* WHITE_SPACE = " \n\t\v\f\r";
+
     inline std::size_t calcCapacity(std::size_t hintLength)
     {
         std::size_t capacity = Buffers::StringBuffer::DEFAULT_STRING_CAPACITY;
@@ -195,4 +195,29 @@ std::size_t countWords(const Containers::String& string, const char* delimeters,
 
     return words;
 }
+}
+
+Utils::Error Containers::String::Filter(const char* filter)
+{
+    SoftAssert(filter, Utils::ErrorCode::ERROR_NULLPTR);
+
+    char*       writePtr = this->Buffer();
+    const char* readPtr  = writePtr;
+
+    while (*readPtr)
+    {
+        char c = *readPtr++;
+
+        if (!std::strchr(filter, c))
+            *writePtr++ = c;
+    }
+
+    *writePtr = '\0';
+
+    return Error();
+}
+
+Utils::Error Containers::String::Filter(const String& filter)
+{
+    return this->Filter(filter.Buffer());
 }
