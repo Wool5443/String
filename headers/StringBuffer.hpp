@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MY_STRING_BUFFER_HPP
+#define MY_STRING_BUFFER_HPP
 
 #include "Utils.hpp"
 
@@ -10,7 +11,7 @@ private:
     char*        m_buf;
     std::size_t  m_capacity;
     std::size_t  m_length;
-    Utils::Error m_error;
+    Utils::Error m_error = Utils::Error();
 public:
     static const std::size_t DEFAULT_STRING_CAPACITY = 8;
     static const std::size_t STRING_GROW_FACTOR      = 2;
@@ -33,3 +34,5 @@ public:
     inline const Utils::Error& Error()    const & { return m_error; }
 };
 }
+
+#endif

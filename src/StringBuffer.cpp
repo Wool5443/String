@@ -6,7 +6,7 @@ Buffers::StringBuffer::StringBuffer(std::size_t capacity)
 
 Buffers::StringBuffer::StringBuffer(std::size_t capacity, std::size_t length)
     : m_buf(new char[capacity]{}), m_capacity(capacity),
-      m_length(length), m_error()
+      m_length(length)
 {
     if (!m_buf)
         m_error = CREATE_ERROR(Utils::ErrorCode::ERROR_NO_MEMORY);
@@ -23,7 +23,7 @@ Buffers::StringBuffer::StringBuffer()
 
 Buffers::StringBuffer::StringBuffer(const StringBuffer& other)
     : m_buf(new char[other.m_capacity]{}), m_capacity(other.m_capacity),
-      m_length(other.m_length), m_error()
+      m_length(other.m_length)
 {
     if (!m_buf)
     {
@@ -35,7 +35,7 @@ Buffers::StringBuffer::StringBuffer(const StringBuffer& other)
 
 Buffers::StringBuffer::StringBuffer(StringBuffer&& other)
     : m_buf(other.m_buf), m_capacity(other.m_capacity),
-      m_length(other.m_length), m_error()
+      m_length(other.m_length)
 {
     other.m_buf = nullptr;
 }

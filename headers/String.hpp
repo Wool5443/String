@@ -1,6 +1,10 @@
-#pragma once
+#ifndef MY_STRING_HPP
+#define MY_STRING_HPP
+
+#include <iostream>
 
 #include "StringBuffer.hpp"
+#include "Array.hpp"
 
 namespace Containers
 {
@@ -15,7 +19,19 @@ public:
     String(std::size_t capacity);
     String(const char* string);
     String(const char* string, std::size_t length);
-
+public:
+    std::size_t            Find  (char c);
+    std::size_t            Find  (const char* substr);
+    std::size_t            Find  (const String& substr);
+    std::size_t            Count (char c);
+    std::size_t            Count (const char* substr);
+    std::size_t            Count (const String& substr);
+    Utils::Error           Filter(const char* filter);
+    Utils::Error           Filter(const String& filter);
+    Buffers::Array<String> Split ();
+    Buffers::Array<String> Split (const char* delimeters);
+    Buffers::Array<String> Split (const String& delimeters);
+public:
     inline char* Buffer()           
     {
         return m_buf.Buffer();
@@ -41,9 +57,19 @@ public:
         return m_buf.Error();
     }
 
-    operator char*()        { return this->Buffer(); }
-    operator bool()         { return this->Buffer(); }
+    operator char*()             { return this->Buffer(); }
+    operator const char*() const { return this->Buffer(); }
+    operator bool()        const { return this->Buffer(); }
 
     String& operator+=(const String& other);
+
+    friend std::ostream& operator<<(std::ostream& out, const String& string)
+    {
+        out << string.Buffer();
+        return out;
+    }
+
 };
 }
+
+#endif
